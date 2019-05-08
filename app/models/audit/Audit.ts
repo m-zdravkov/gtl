@@ -8,6 +8,7 @@ import {
   models
 } from '../../components/constants/models/audit/auditConstants';
 import { Moment } from 'moment';
+import { User } from '../user/User';
 
 export class Audit extends BaseModel {
   action: ActionType;
@@ -16,7 +17,7 @@ export class Audit extends BaseModel {
   email?: string;
   firstName?: string;
   lastName?: string;
-  // TODO userId?: ObjectIdOrRef<User>;
+  userId?: ObjectIdOrRef<User>;
   newValue?: string;
   oldValue?: string;
   newObject?: object;
@@ -26,11 +27,9 @@ export class Audit extends BaseModel {
 
 // @ts-ignore
 export interface DocAudit extends Document, Audit {
-  // TODO userId?: ObjectIdOrRef<User>;
 }
 
 export interface LeanAudit extends Audit {
-  // TODO userId?: ObjectIdOrRef<User>;
   model: string;
 }
 
