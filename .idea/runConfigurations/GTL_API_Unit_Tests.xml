@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="GTL API Unit Tests" type="mocha-javascript-test-runner" factoryName="Mocha" activateToolWindowBeforeRun="false">
+    <node-interpreter>project</node-interpreter>
+    <node-options />
+    <working-directory>$PROJECT_DIR$</working-directory>
+    <pass-parent-env>true</pass-parent-env>
+    <ui>bdd</ui>
+    <extra-mocha-options>--require ts-node/register</extra-mocha-options>
+    <test-kind>PATTERN</test-kind>
+    <test-pattern>$PROJECT_DIR$/test/**/*.ts</test-pattern>
+    <method v="2" />
+  </configuration>
+</component>
