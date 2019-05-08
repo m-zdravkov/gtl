@@ -33,6 +33,7 @@ function requireFiles(db: Connection): void {
   logger.logMsg('******! DbConnect Require Files !******');
   try {
     // Require all models here
+    require('./../../models/audit/Audit').default(db);
   } catch (error) {
     logger.logErr(`Requiring and initializing models threw an exception: ${error}`);
   }

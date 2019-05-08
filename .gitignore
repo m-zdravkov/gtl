@@ -56,3 +56,10 @@ obj/
 # Local config files
 *.config.js
 package-lock.json
+.nyc_output
+coverage
+test/build/
+.self_coverage
+self-coverage/
+*.swp
+needs-transpile.js
