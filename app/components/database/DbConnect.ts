@@ -4,8 +4,6 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 import { config } from '../config';
 import { Logger } from '../logger/Logger';
-import { Campus } from '../../models/campus/Campus';
-import { User } from '../../models/user/User';
 
 let connection: Connection;
 
