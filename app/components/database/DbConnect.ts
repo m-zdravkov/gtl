@@ -36,6 +36,7 @@ function requireFiles(db: Connection): void {
       require('../../models/book/Book').default(db);
       require('../../models/book/BookCopy').default(db);
       require('../../models/campus/Campus').default(db);
+      require('../../models/book/WishlistItem').default(db);
       require('../../models/user/User').default(db);
       require('../../models/audit/Audit').default(db);
   } catch (error) {
