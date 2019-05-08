@@ -15,7 +15,7 @@ export interface LeanMemberCard extends MemberCard {
 export interface DocMemberCard extends MemberCard, Document {
 }
 
-const MemberCardSchema = new Schema({
+export const MemberCardSchema = new Schema({
     expirationDate: {type: Date, required: true},
     notificationSendoutDate: {type: Date, required: true},
     isNotificationSent: {type: Boolean, required: true, default: false}

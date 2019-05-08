@@ -36,6 +36,7 @@ function requireFiles(db: Connection): void {
   try {
     // Require all models here
     require('../../models/campus/Campus').default(db);
+    require('./../../models/audit/Audit').default(db);
   } catch (error) {
     logger.logErr(`Requiring and initializing models threw an exception: ${error}`);
   }
