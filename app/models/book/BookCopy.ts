@@ -7,12 +7,12 @@ export class BookCopy extends BaseModel {
     available: boolean;
     takenDate: Moment;
     expectedReturnDate: Moment;
-    lendingRestrictions?: Array<string>;
+    lendingRestrictions?: string[];
 
     constructor(available: boolean,
                 takenDate: Moment,
                 expectedReturnDate: Moment,
-                lendingRestrictions?: Array<string>) {
+                lendingRestrictions?: string[]) {
         super();
         this.available = available;
         this.takenDate = takenDate;
@@ -32,7 +32,7 @@ const BookCopySchema = new Schema({
     available: {type: Boolean, required: true},
     author: {type: Date, required: true},
     publishYear: {type: Date, required: true},
-    lendingRestrictions: {type: Array, of: String, required: false}});
+    lendingRestrictions: {type: [Number], required: false}});
 export default function (db: Connection): void {
     db.model<DocBookCopy>('BookCopy', BookCopySchema);
 }

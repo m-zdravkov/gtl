@@ -4,7 +4,7 @@ import {Moment} from 'moment';
 
 export class Book extends BaseModel {
 
-    bookCopies: Array<number>;
+    bookCopies: number[];
     ISBN: string;
     author: string;
     title: string;
@@ -12,7 +12,7 @@ export class Book extends BaseModel {
     subjectArea: string;
     description?: string;
 
-    constructor(bookCopies: Array<number>,
+    constructor(bookCopies: number[],
                 ISBN: string,
                 author: string,
                 title: string,
@@ -37,7 +37,7 @@ export interface DocBook extends Book, Document {
 }
 
 const BookSchema = new Schema({
-    bookCopies: {type: Array, of: Number, required: true},
+    bookCopies: {type: [Number], required: true},
     ISBN: {type: String, required: true},
     author: {type: String, required: true},
     title: {type: String, required: true},
