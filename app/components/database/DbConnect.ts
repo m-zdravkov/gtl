@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 import { config } from '../config';
 import { Logger } from '../logger/Logger';
-import { Campus } from '../../models/campus/Campus';
 
 let connection: Connection;
 
@@ -33,8 +32,10 @@ function requireFiles(db: Connection): void {
   const logger = new Logger();
   logger.logMsg('******! DbConnect Require Files !******');
   try {
-    // Require all models here
-    require('../../models/campus/Campus').default(db);
+      // Require all models here
+      require('../../models/book/Book').default(db);
+      require('../../models/book/BookCopy').default(db);
+      require('../../models/campus/Campus').default(db);
   } catch (error) {
     logger.logErr(`Requiring and initializing models threw an exception: ${error}`);
   }
