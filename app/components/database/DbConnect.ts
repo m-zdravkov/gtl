@@ -32,9 +32,11 @@ function requireFiles(db: Connection): void {
   const logger = new Logger();
   logger.logMsg('******! DbConnect Require Files !******');
   try {
-    // Require all models here
-    require('../../models/campus/Campus').default(db);
-    require('./../../models/audit/Audit').default(db);
+      // Require all models here
+      require('../../models/book/Book').default(db);
+      require('../../models/book/BookCopy').default(db);
+      require('../../models/campus/Campus').default(db);
+      require('../../models/user/User').default(db);
   } catch (error) {
     logger.logErr(`Requiring and initializing models threw an exception: ${error}`);
   }
