@@ -7,6 +7,7 @@ import {
   setUnitTestEnv,
   setDevelopmentEnv } from './app/components/config';
 import { dbSetup} from './app/components/database/DbSetup';
+require('./app/components/helpers/ArrayExtensions');
 
 const http = require('http');
 const express = require('express');

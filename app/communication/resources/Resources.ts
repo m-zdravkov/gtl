@@ -1,5 +1,5 @@
 const appPackage = require('../../../package.json');
-import { constants } from '../../components/Constants';
+import { constants } from '../../components/constants';
 import { Request, Response, Router, Application} from 'express';
 
 export function initializeResources(app: Application, router: Router): void {
