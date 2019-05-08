@@ -1,18 +1,17 @@
 import {BaseModel} from '../BaseModel';
 import {Connection, Document, Schema} from 'mongoose';
-import {Book} from './Book';
 
 export class WishlistItem extends BaseModel {
 
-    book: Book;
+    bookId: number;
     numOfCopies: number;
     reason?: string;
 
-    constructor(    book: Book,
+    constructor(    bookId: number,
                     numOfCopies: number,
                     reason?: string) {
         super();
-        this.book = book;
+        this.bookId = bookId;
         this.numOfCopies = numOfCopies;
         this.reason = reason;
 
@@ -26,7 +25,7 @@ export interface DocWishlistItem extends WishlistItem, Document {
 }
 
 const WishlistItemSchema = new Schema({
-    book: {type: Book, required: true},
+    bookId: {type: Number, required: true},
     numOfCopies: {type: Number, required: true},
     reason: {type: String, required: false}
 });
