@@ -37,6 +37,7 @@ function requireFiles(db: Connection): void {
       require('../../models/book/BookCopy').default(db);
       require('../../models/campus/Campus').default(db);
       require('../../models/user/User').default(db);
+      require('../../models/audit/Audit').default(db);
   } catch (error) {
     logger.logErr(`Requiring and initializing models threw an exception: ${error}`);
   }
