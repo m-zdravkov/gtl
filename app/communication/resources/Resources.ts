@@ -22,4 +22,5 @@ export function initializeResources(app: Application, router: Router): void {
 
   // Require routes related to different models
   require('./BookResources')(router);
+  require('./UserResources')(router);
 }
