@@ -34,6 +34,6 @@ export const UserSchema = new Schema({
     MemberCard: {type: MemberCardSchema, required: true}
 });
 
-export default function (db:Connection): void {
+export default function(db: Connection): void {
     db.model<DocUser>('User', UserSchema);
 }
