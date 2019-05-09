@@ -6,6 +6,7 @@
   "author": "GTL Team",
   "private": true,
   "dependencies": {
+    "@types/express": "4.16.0",
     "@types/mocha": "2.2.41",
     "@types/mongodb": "2.2.8",
     "@types/mongoose": "4.7.19",
