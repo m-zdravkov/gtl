@@ -23,7 +23,8 @@ export const config = {
       'port': 27017,
       'logPath': '/dbs/localDb/mongodb.log',
       'path': '/dbs/localDb'
-    }
+    },
+    production: false
   },
   databaseName: process.env.dbName ? process.env.dbName : 'masterDb',
   deleteDevelopmentDb: false

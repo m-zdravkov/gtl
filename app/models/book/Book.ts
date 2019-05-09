@@ -1,22 +1,23 @@
-import {BaseModel} from '../BaseModel';
+import { BaseModel, ObjectIdOrRef } from '../BaseModel';
 import {Connection, Document, Schema} from 'mongoose';
-import {Moment} from 'moment';
+import { BookCopy } from './BookCopy';
+import moment = require('moment');
 
 export class Book extends BaseModel {
 
-    bookCopies: number[];
+    bookCopies: ObjectIdOrRef<BookCopy>;
     ISBN: string;
     author: string;
     title: string;
-    publishYear: Moment;
+    publishYear: number;
     subjectArea: string;
     description?: string;
 
-    constructor(bookCopies: number[],
+    constructor(bookCopies: ObjectIdOrRef<BookCopy>,
                 ISBN: string,
                 author: string,
                 title: string,
-                publishYear: Moment,
+                publishYear: number,
                 subjectArea: string,
                 description?: string ) {
         super();
@@ -37,14 +38,23 @@ export interface DocBook extends Book, Document {
 }
 
 const BookSchema = new Schema({
-    bookCopies: {type: [Number], required: true},
+    bookCopies: {type: [Schema.Types.ObjectId], ref: 'BookCopy', required: false},
     ISBN: {type: String, required: true},
     author: {type: String, required: true},
     title: {type: String, required: true},
-    publishYear: {type: Date, required: true},
+    publishYear: {
+      type: Number,
+      required: true,
+      validate: { validator: validatePublishYear, msg: 'The book is not yet published' }
+    },
     subjectArea: {type: String, required: true},
     description: {type: String, required: false}
 });
+
+function validatePublishYear(value: number): boolean {
+  return parseInt(moment().format('YYYY'), 10) >= value;
+}
+
 export default function (db: Connection): void {
     db.model<DocBook>('Book', BookSchema);
 }

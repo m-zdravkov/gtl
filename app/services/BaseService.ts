@@ -118,4 +118,13 @@ export class BaseService<Lean extends BaseModel, Doc extends BaseModel & Documen
   count(conditions: Condition): Promise<number> {
     return this.mongoService.count(this.modelName, conditions);
   }
+
+  /**
+   * Creates a document from the provided request body, for the service's model reference
+   * @param reqBody The object that contains all fields required to create the model object
+   */
+  create(reqBody: any): Doc {
+    const model = this.mongoService.getModel(this.modelName);
+    return new model(reqBody);
+  }
 }
