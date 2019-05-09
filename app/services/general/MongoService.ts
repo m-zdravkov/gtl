@@ -117,7 +117,7 @@ class MongoService {
     }
 
     return ((query.exec()) as Promise<T[]>).catch(err => {
-      ErrorHandler.handleErrDb(
+      throw ErrorHandler.handleErrDb(
         null,
         `Could not fetch ${modelName.toLowerCase()} models. Query params used: ${conditions}`, err);
     });
