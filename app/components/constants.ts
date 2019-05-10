@@ -9,6 +9,7 @@ export const constants = {
     QUERY: 'QUERY',
     DB: 'DATABASE',
     UNKNOWN: 'UNKNOWN',
-    VALIDATION: 'VALIDATION'
+    VALIDATION: 'VALIDATION',
+    EXTERNAL: 'EXTERNAL'
   }
 };
