@@ -19,19 +19,18 @@ export async function createUser(req: Request): Promise<DocUser> {
 
 export async function getUser(req: Request): Promise<DocUser> {
   const fName = 'UserCtrl.getUser';
+  if (req.query.ssn) {
+    const queryUser: {
+      ssn: string;
+    } = {
+      ssn: req.query.ssn
+    };
 
-  const queryUser: {
-    ssn: string;
-  } = {
-    ssn: req.query.ssn
-  };
+    const db = await getConnection();
+    const userService = new UserService(db);
 
-  const db = await getConnection();
-  const userService = new UserService(db);
-
-  try {
     return userService.findOne(queryUser);
-  } catch (e) {
-    throw ErrorHandler.handleErrQueryfunction(fName, e.msg, e.inner);
+  } else {
+    throw ErrorHandler.handleErrorPrecondition(fName, 'Missing parameter ssn');
   }
 }
