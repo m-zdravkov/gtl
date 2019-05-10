@@ -26,7 +26,7 @@ export interface DocUser extends User, Document {
 export const UserSchema = new Schema({
     userType: {type: String, required: true, 'enum': userTypes},
     takenBooks: {type: [Schema.Types.ObjectId], ref: 'BookCopy', required: false},
-    ssn: {type: String, required: true, unique: true, validate: [validator.isLength(1, 10)]},
+    ssn: {type: String, required: true, unique: true, validate: [validator.isLength(10, 10)]},
     campus: {type: Schema.Types.ObjectId, ref: 'Campus', required: false},
     homeAddress: {type: String, required: true},
     mailingAddress: {type: String, required: true},

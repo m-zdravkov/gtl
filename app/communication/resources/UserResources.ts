@@ -1,6 +1,6 @@
 import { defaultCtrlCall } from './UtilResources';
 import { Router } from 'express';
-import { createUser, getUser } from '../../controllers/user/UserCtrl';
+import { createUser, getUser, updateUser } from '../../controllers/user/UserCtrl';
 
 export function userHandler(router: Router): void {
     router.post('/users', (req, res) => {
@@ -9,5 +9,9 @@ export function userHandler(router: Router): void {
 
     router.get('/users', (req, res) => {
         return defaultCtrlCall(res, getUser, req);
+    });
+
+    router.put('/users', (req, res) => {
+        return defaultCtrlCall(res, updateUser, req);
     });
 }
