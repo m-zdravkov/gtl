@@ -36,7 +36,8 @@
     "prebuild": "del-cli dist",
     "build": "node ./node_modules/typescript/bin/tsc && cpy package.json dist --parents",
     "postinstall": "npm run build",
-    "clean": "del-cli -f dist dbs doc ext-doc"
+    "clean": "del-cli -f dist dbs doc ext-doc",
+    "linux": "npm install && node dist/server.js --local"
   },
   "devDependencies": {
     "@types/chai": "4.1.2",

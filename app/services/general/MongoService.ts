@@ -3,7 +3,7 @@ import { ErrorHandler } from '../../components/ErrorHandler';
 import { ObjectId } from '../../models/BaseModel';
 import { Condition, Options, Population, Projection } from '../BaseService';
 
-const constants = require('../../components/Constants');
+import { constants } from '../../components/constants';
 
 export let getMongoService: (db: Connection) => MongoService = (db) => {
   if (!instance) {
