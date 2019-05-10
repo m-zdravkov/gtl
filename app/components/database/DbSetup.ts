@@ -5,6 +5,8 @@ import { check, waitUntilUsed, waitUntilFree } from 'tcp-port-used';
 import { Logger } from '../logger/Logger';
 import { getConnection } from './DbConnect';
 
+import os = require('os');
+
 export async function dbSetup(): Promise<void> {
   const mode = Object.keys(config.modes).find(iMode => config.modes[ iMode ] === true);
   const logger = new Logger();
@@ -53,7 +55,11 @@ async function stopMongodInstance(dbPath: string, dbPort: number): Promise<void>
   const portInUse = await check(dbPort, '127.0.0.1');
   if (portInUse) {
     let command;
-    command = '%mongo% --port ' + dbPort + ' --eval db.getSiblingDB(\'admin\').shutdownServer()';
+    if (os.platform() === 'linux') {
+      command = 'mongo --port ' + dbPort + ' --eval "db.getSiblingDB(\'admin\').shutdownServer()"';
+    } else {
+      command = '%mongo% --port ' + dbPort + ' --eval db.getSiblingDB(\'admin\').shutdownServer()';
+    }
     await exec(command);
     await waitUntilFree(dbPort, 500, 15000);
     new Logger().logMsg('-------- Mongod instance shut down --------');
@@ -64,8 +70,13 @@ async function deleteTestDatabaseFiles(dbPath: string): Promise<void> {
   if (dbPath === config.database.development.path && !config.deleteDevelopmentDb) {
     return;
   }
-  let deleteCommand = 'if exist ' + `"${dbPath}"` + ' RMDIR /S /Q ';
-  deleteCommand += `"${dbPath}"`;
+  let deleteCommand;
+  if (os.platform() === 'linux') {
+    deleteCommand = 'if [ -d ' + `"${dbPath}"` + ' ]; then rm -rf ' + `"${dbPath}"` + '; fi';
+  } else {
+    deleteCommand = 'if exist ' + `"${dbPath}"` + ' RMDIR /S /Q ';
+    deleteCommand += `"${dbPath}"`;
+  }
   let createCommand = 'mkdir ';
   createCommand += `"${dbPath}"`;
 

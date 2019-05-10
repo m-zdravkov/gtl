@@ -1,6 +1,7 @@
 const appPackage = require('../../../package.json');
 import { constants } from '../../components/constants';
 import { Request, Response, Router, Application} from 'express';
+import { userHandler } from './UserResources';
 
 export function initializeResources(app: Application, router: Router): void {
   // Define our routes to start with a base route defined in constants
@@ -22,5 +23,5 @@ export function initializeResources(app: Application, router: Router): void {
 
   // Require routes related to different models
   require('./BookResources')(router);
-  require('./UserResources')(router);
+  userHandler(router);
 }
