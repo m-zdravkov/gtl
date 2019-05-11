@@ -7,7 +7,7 @@ import { DocBookCopy, BookCopy } from '../../models/book/BookCopy';
 import { UserService } from '../../services/user/UserService';
 import { DocUser } from '../../models/user/User';
 import * as moment from 'moment';
-import { returnPeriodDays } from '../../components/constants/models/book/bookConstants'
+import { returnPeriodDays, maxLoans } from '../../components/constants/models/book/bookConstants'
 
 export async function createBook(req: Request): Promise<DocBook> {
   const fName = 'BookCtrl.createBook';
@@ -62,6 +62,11 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
   const user: DocUser = await userService.findOne({ssn: ssn});
   if (!user) {
     throw ErrorHandler.handleErrDb(fName, 'User SSN not found');
+  }
+
+  // Check that user has loaned less than 5 books
+  if (user.takenBooks.length >= maxLoans) {
+    throw ErrorHandler.handleErrValidation(fName, `User can not loan more than ${maxLoans} books`);
   }
 
   // Find one available copy
