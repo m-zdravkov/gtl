@@ -39,7 +39,7 @@ export interface DocBook extends Book, Document {
 
 const BookSchema = new Schema({
     bookCopies: {type: [Schema.Types.ObjectId], ref: 'BookCopy', required: false},
-    ISBN: {type: String, required: true},
+    ISBN: {type: String, required: true, unique: true},
     author: {type: String, required: true},
     title: {type: String, required: true},
     publishYear: {
