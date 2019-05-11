@@ -14,7 +14,7 @@ export class Audit extends BaseModel {
   action: ActionType;
   model: ModelType;
   createTime: Moment;
-  userId?: ObjectIdOrRef<User>;
+  librarianId?: ObjectIdOrRef<User>; // FIX: User should be Librarian
   newObject?: object;
   oldObject?: object;
   modelId?: ObjectIdOrRef<string>;
@@ -29,7 +29,7 @@ export interface LeanAudit extends Audit {
 }
 
 export const AuditSchema = new Schema({
-  userId: {type: Schema.Types.ObjectId, ref: 'User', required: false},
+  librarianId: {type: Schema.Types.ObjectId, ref: 'User', required: false},
   model: {
     type: String, required: true,
     'enum': models

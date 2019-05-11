@@ -8,11 +8,11 @@ import { ObjectId } from '../../models/BaseModel';
 export class AuditService extends BaseService<LeanAudit, DocAudit> {
 
   async createAudit(model: modelEnum, action: actionEnum, modelId?: ObjectId, newObject?, oldObject?,
-                     userId?: ObjectId) {
+                     librarianId?: ObjectId) {
     const audit = new Audit();
 
-    if (userId) {
-      audit.userId = userId;
+    if (librarianId) {
+      audit.librarianId = librarianId;
     }
     audit.createTime = moment();
     audit.model = model;
