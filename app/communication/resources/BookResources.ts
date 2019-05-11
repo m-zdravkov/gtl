@@ -1,5 +1,5 @@
 import { defaultCtrlCall } from './UtilResources';
-import {createBook, getBooks} from '../../controllers/book/BookCtrl';
+import {createBook, getBooks, loanBook} from '../../controllers/book/BookCtrl';
 import { Request, Response } from 'express';
 
 module.exports = (router: any) => {
@@ -14,5 +14,10 @@ module.exports = (router: any) => {
     '/books',
     (req: Request, res: Response) => {
       return defaultCtrlCall(res, getBooks, req);
+    });
+  router.put(
+    '/books/:isbn/loan',
+    (req: Request, res: Response) => {
+      return defaultCtrlCall(res, loanBook, req);
     });
 };

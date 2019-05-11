@@ -3,6 +3,11 @@ import { BookService } from '../../services/book/BookService';
 import { getConnection } from '../../components/database/DbConnect';
 import { DocBook } from '../../models/book/Book';
 import { ErrorHandler } from '../../components/ErrorHandler';
+import { DocBookCopy, BookCopy } from '../../models/book/BookCopy';
+import { UserService } from '../../services/user/UserService';
+import { DocUser } from '../../models/user/User';
+import * as moment from 'moment';
+import { returnPeriodDays } from '../../components/constants/models/book/bookConstants'
 
 export async function createBook(req: Request): Promise<DocBook> {
   const fName = 'BookCtrl.createBook';
@@ -37,4 +42,49 @@ export async function getBooks(req: Request): Promise<DocBook[]> {
     const db = await getConnection();
     const bookService = new BookService(db);
     return bookService.find(bookObject);
+}
+
+export async function loanBook(req: Request): Promise<DocBookCopy> {
+  const fName = 'BookCtrl.loanBook';
+  const isbn = req.params.isbn;
+  const ssn = req.body.ssn;
+
+  const db = await getConnection();
+  const bookService = new BookService(db);
+  const userService = new UserService(db);
+
+  // Check if book and user exist
+  const book: DocBook = await bookService.findOne({ISBN: isbn}, undefined, 'bookCopies');
+  if (!book) {
+    throw ErrorHandler.handleErrDb(fName, 'Book ISBN not found');
+  }
+
+  const user: DocUser = await userService.findOne({ssn: ssn});
+  if (!user) {
+    throw ErrorHandler.handleErrDb(fName, 'User SSN not found');
+  }
+
+  // Find one available copy
+  book.bookCopies = book.bookCopies as BookCopy[];
+  const copy: DocBookCopy = book.bookCopies.find(k => {
+    k = k as BookCopy;
+    return k.available === true && !k.lendingRestrictions;
+  }) as DocBookCopy;
+
+  if (!copy) {
+    throw ErrorHandler.handleErrDb(fName, 'No copies are available');
+  }
+
+  // Assign loan
+  copy.available = false;
+  copy.takenDate = moment();
+  copy.expectedReturnDate = moment().add(returnPeriodDays, 'days');
+  user.takenBooks.push(copy);
+
+  try {
+    await user.save();
+    return copy.save();
+  } catch (e) {
+    throw ErrorHandler.handleErrValidation(fName, e.msg, e.inner);
+  }
 }
