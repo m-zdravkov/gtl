@@ -19,7 +19,7 @@ export async function dbSetup(): Promise<void> {
   logPath += path.normalize(config.database[ mode ].logPath);
   try {
     await stopMongodInstance(dbPath, dbPort);
-    await deleteTestDatabaseFiles(dbPath);
+    await deleteTestDatabaseFiles(dbPath, mode);
     await initializeMongodInstance(dbPath, dbPort, logPath);
     await initializeMasterDb(dbPort);
   } catch (err) {
@@ -66,8 +66,8 @@ async function stopMongodInstance(dbPath: string, dbPort: number): Promise<void>
   }
 }
 
-async function deleteTestDatabaseFiles(dbPath: string): Promise<void> {
-  if (dbPath === config.database.development.path && !config.deleteDevelopmentDb) {
+async function deleteTestDatabaseFiles(dbPath: string, mode: string): Promise<void> {
+  if (mode === 'development' && !config.deleteDevelopmentDb) {
     return;
   }
   let deleteCommand;
