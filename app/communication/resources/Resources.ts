@@ -1,3 +1,5 @@
+import { sendNotifications } from './WebjobResources';
+
 const appPackage = require('../../../package.json');
 import { constants } from '../../components/constants';
 import { Request, Response, Router, Application} from 'express';
@@ -25,4 +27,5 @@ export function initializeResources(app: Application, router: Router): void {
   require('./BookResources')(router);
   require('./WishlistResources')(router);
   userHandler(router);
+  sendNotifications(router)
 }
