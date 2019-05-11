@@ -5,8 +5,9 @@ import {
     getWishlist, removeWishlistItem,
     updateWishlistItem
 } from '../../controllers/book/WishlistCtrl';
+import {Router} from 'express';
 
-module.exports = (router: any) => {
+module.exports = (router: Router) => {
 
     // View compliance data
     router.post(
