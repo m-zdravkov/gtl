@@ -130,11 +130,11 @@ class MongoService {
       resolve(DbModel.findOneAndUpdate(conditions, update)
         .exec()
         .catch(err => {
-          reject(ErrorHandler.handleErr(
+          throw ErrorHandler.handleErr(
             null,
             `Could not update ${modelName.toLowerCase()} models. Conditions: ` +
             `${conditions} update: ${update}`,
-            constants.errType.DB, 400, err));
+            constants.errType.DB, 400, err);
         }));
     });
   };

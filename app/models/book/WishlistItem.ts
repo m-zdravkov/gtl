@@ -26,7 +26,7 @@ export interface DocWishlistItem extends WishlistItem, Document {
 }
 
 const WishlistItemSchema = new Schema({
-    bookId: {type: Schema.Types.ObjectId, ref: 'Book', required: true},
+    bookId: {type: Schema.Types.ObjectId, ref: 'Book', required: true, unique: true},
     numOfCopies: {type: Number, required: true},
     reason: {type: String, required: false}
 });

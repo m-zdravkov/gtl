@@ -18,7 +18,6 @@ export async function createWishlistItem(req: Request): Promise<DocWishlistItem>
 }
 
 export async function getWishlist(): Promise<DocWishlistItem[]> {
-
     const db = await getConnection();
     const wishlistService = new WishlistService(db);
     return wishlistService.find({}, undefined, 'bookId');
@@ -27,16 +26,11 @@ export async function getWishlist(): Promise<DocWishlistItem[]> {
 export async function updateWishlistItem(req: Request): Promise<void> {
     // TODO: Add validation for the body
     //  And check that the 'new' book doesn't exist in a wishlist item already.
-    const fName = 'WishlistCtrl.updateWishlistItem';
     const reqBody = req.body;
     const itemId = req.params.itemId;
     const db = await getConnection();
     const wishlistService = new WishlistService(db);
-    try {
-        return wishlistService.update({_id: itemId}, reqBody);
-    } catch (e) {
-        throw ErrorHandler.handleErrValidation(fName, e.msg, e.inner);
-    }
+    return wishlistService.update({_id: itemId}, reqBody);
 }
 
 export async function removeWishlistItem(req: Request): Promise<void> {
@@ -45,6 +39,5 @@ export async function removeWishlistItem(req: Request): Promise<void> {
     const wishlistService = new WishlistService(db);
 
     return wishlistService.remove({_id: itemId});
-
 }
 
