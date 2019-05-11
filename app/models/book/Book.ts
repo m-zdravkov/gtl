@@ -5,7 +5,7 @@ import moment = require('moment');
 
 export class Book extends BaseModel {
 
-    bookCopies: ObjectIdOrRef<BookCopy>;
+    bookCopies: ObjectIdOrRef<BookCopy>[];
     ISBN: string;
     author: string;
     title: string;
@@ -13,7 +13,7 @@ export class Book extends BaseModel {
     subjectArea: string;
     description?: string;
 
-    constructor(bookCopies: ObjectIdOrRef<BookCopy>,
+    constructor(bookCopies: ObjectIdOrRef<BookCopy>[],
                 ISBN: string,
                 author: string,
                 title: string,

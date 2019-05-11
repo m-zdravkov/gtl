@@ -1,3 +1,5 @@
+require('./app/components/helpers/ArrayExtensions');
+require('./app/components/helpers/Mail');
 import { initializeResources } from './app/communication/resources/Resources';
 import {Logger} from './app/components/logger/Logger';
 import { Request, Response, NextFunction} from 'express';
@@ -7,8 +9,6 @@ import {
   setUnitTestEnv,
   setDevelopmentEnv } from './app/components/config';
 import { dbSetup} from './app/components/database/DbSetup';
-require('./app/components/helpers/ArrayExtensions');
-
 const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -35,10 +35,6 @@ if (process.argv) {
       setIntegrationTestEnv();
     }
   });
-}
-
-if (process.env.prodEnv === '0') {
-  setDevelopmentEnv();
 }
 
 process.on('unhandledRejection', error => {
