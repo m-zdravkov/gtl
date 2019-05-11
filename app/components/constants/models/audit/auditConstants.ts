@@ -15,6 +15,7 @@ export type ActionType = keyof typeof actionTypesEnum;
 export enum actionEnum {
   CREATE = 'CREATE',
   LIST = 'LIST',
+  FIND = 'FIND',
   UPDATE = 'UPDATE',
   DELETE = 'DELETE'
 }

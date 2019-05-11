@@ -43,5 +43,7 @@ export async function getBooks(req: Request): Promise<DocBook[]> {
     }
     const db = await getConnection();
     const bookService = new BookService(db);
+    const auditService = new AuditService(db);
+    auditService.createAudit(modelEnum.BOOK, actionEnum.LIST);
     return bookService.find(bookObject);
 }
