@@ -44,7 +44,7 @@ export function createBook(bookCopies?: BookCopy[]): Book {
 }
 
 export function createBookCopy(book: Book): BookCopy {
-  const bookCopy = new BookCopy(true, moment(), 1950, book._id, moment().add(1, 'month'));
+  const bookCopy = new BookCopy(true, moment(), book._id, moment().add(1, 'month'));
   bookCopy._id = new Types.ObjectId();
   if (book) {
     book.bookCopies.push(bookCopy);

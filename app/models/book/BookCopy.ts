@@ -14,7 +14,6 @@ export class BookCopy extends BaseModel {
 
     constructor(available: boolean,
                 expectedReturnDate: Moment,
-                publishYear: number,
                 bookId: ObjectIdOrRef<Book>,
                 takenDate?: Moment,
                 lendingRestrictions?: string[]) {
