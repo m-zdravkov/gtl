@@ -43,7 +43,7 @@ export async function createBook(): Promise<DocBook> {
 export async function createBookCopy(book: DocBook): Promise<DocBookCopy> {
   const db = await getConnection();
   const bookCopyService = new BookCopyService(db);
-  const bookCopy = new BookCopy(true, moment(), 1950, book._id, moment().add(1, 'month'));
+  const bookCopy = new BookCopy(true, moment(), 1950, book._id, moment());
   const savedBookCopy = await bookCopyService.create(bookCopy).save();
   book.bookCopies.push(savedBookCopy._id);
   await book.save();

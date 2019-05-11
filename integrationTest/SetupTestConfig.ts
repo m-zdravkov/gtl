@@ -14,7 +14,6 @@ setIntegrationTestEnv();
 after(stopMongodInstance);
 
 function stopMongodInstance(): any {
-  let dbPath = process.cwd();
   let dbPort = config.database.integrationTest.port;
 
 

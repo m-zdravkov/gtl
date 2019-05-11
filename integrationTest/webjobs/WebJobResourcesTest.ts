@@ -26,23 +26,19 @@ before(async () => {
 describe('The token webjob', () => {
   let sendEmailStub;
   let response;
+  let campus;
+  let bookCopyOne;
+  let bookCopyTwo;
+  let book;
+  let user;
 
   beforeEach(async () => {
-    const campus = await createCampus();
+    campus = await createCampus();
     const createUserPromise = createUser(userTypesEnum.PROFESSOR, campus._id);
-    const book = await createBook();
-    const bookCopyOne = await createBookCopy(book);
-    const bookCopyTwo = await createBookCopy(book);
-    bookCopyOne.expectedReturnDate = moment().subtract(3, 'years');
-    bookCopyTwo.expectedReturnDate = moment().subtract(3, 'years');
-    const promises = [];
-    promises.push(bookCopyOne.save());
-    promises.push(bookCopyTwo.save());
-    const user = await createUserPromise;
-    user.takenBooks.push(bookCopyOne._id);
-    user.takenBooks.push(bookCopyTwo._id);
-    promises.push(user.save());
-    await Promise.all(promises);
+    book = await createBook();
+    bookCopyOne = await createBookCopy(book);
+    bookCopyTwo = await createBookCopy(book);
+    user = await createUserPromise;
     sendEmailStub = stub(Mailer, 'sendMail').resolves();
   });
 
@@ -50,14 +46,77 @@ describe('The token webjob', () => {
     sendEmailStub.restore();
   });
 
-  it('should send the correct number of emails when invoked', async () => {
+  it('should send 2 emails for overdue books to professor', async () => {
+    const promises = [];
+    bookCopyOne.expectedReturnDate = moment().subtract(2, 'weeks');
+    bookCopyTwo.expectedReturnDate = moment().subtract(2, 'weeks');
+    promises.push(bookCopyOne.save());
+    promises.push(bookCopyTwo.save());
+    user.takenBooks.push(bookCopyOne._id);
+    user.takenBooks.push(bookCopyTwo._id);
+    promises.push(user.save());
+    await Promise.all(promises);
+
     response = await chai.request(server)
       .get('/webjobs/notifications/send')
       .send();
-
-    // This timeout is awaited here to give the not-awaited code time to execute
-    await new Promise(resolve => setTimeout(resolve, 3000));
     expect(response.status).to.equal(200);
     expect(sendEmailStub.callCount).to.be.equal(2);
+  });
+
+  it('should send no emails for overdue books to professor', async () => {
+    const promises = [];
+    bookCopyOne.expectedReturnDate = moment().subtract(1, 'week');
+    bookCopyTwo.expectedReturnDate = moment().subtract(1, 'week');
+    promises.push(bookCopyOne.save());
+    promises.push(bookCopyTwo.save());
+    user.takenBooks.push(bookCopyOne._id);
+    user.takenBooks.push(bookCopyTwo._id);
+    promises.push(user.save());
+    await Promise.all(promises);
+
+    response = await chai.request(server)
+      .get('/webjobs/notifications/send')
+      .send();
+    expect(response.status).to.equal(200);
+    expect(sendEmailStub.callCount).to.be.equal(0);
+  });
+
+  it('should send 2 emails for overdue books to normal user', async () => {
+    const promises = [];
+    user.userType = userTypesEnum.NORMAL_USER;
+    bookCopyOne.expectedReturnDate = moment().subtract(1, 'week');
+    bookCopyTwo.expectedReturnDate = moment().subtract(1, 'week');
+    promises.push(bookCopyOne.save());
+    promises.push(bookCopyTwo.save());
+    user.takenBooks.push(bookCopyOne._id);
+    user.takenBooks.push(bookCopyTwo._id);
+    promises.push(user.save());
+    await Promise.all(promises);
+
+    response = await chai.request(server)
+      .get('/webjobs/notifications/send')
+      .send();
+    expect(response.status).to.equal(200);
+    expect(sendEmailStub.callCount).to.be.equal(2);
+  });
+
+  it('should send no emails for overdue books to normal user', async () => {
+    const promises = [];
+    user.userType = userTypesEnum.NORMAL_USER;
+    bookCopyOne.expectedReturnDate = moment().subtract(6, 'days');
+    bookCopyTwo.expectedReturnDate = moment().subtract(6, 'days');
+    promises.push(bookCopyOne.save());
+    promises.push(bookCopyTwo.save());
+    user.takenBooks.push(bookCopyOne._id);
+    user.takenBooks.push(bookCopyTwo._id);
+    promises.push(user.save());
+    await Promise.all(promises);
+
+    response = await chai.request(server)
+      .get('/webjobs/notifications/send')
+      .send();
+    expect(response.status).to.equal(200);
+    expect(sendEmailStub.callCount).to.be.equal(0);
   });
 });
