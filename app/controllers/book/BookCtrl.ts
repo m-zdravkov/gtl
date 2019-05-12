@@ -86,11 +86,8 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
 
   // Find one available copy
   book.bookCopies = book.bookCopies as BookCopy[];
-  const bookCopyService = new BookCopyService(db);
-  throw ErrorHandler.handleErrDb(fName, `EBI SI MAIKATA:\n${JSON.stringify(book)}\n${JSON.stringify(bookCopyService.find({}))}`);
   const copy: DocBookCopy = book.bookCopies.find(k => {
     k = k as BookCopy;
-    // throw ErrorHandler.handleErrDb(fName, 'EBI SI MAIKATA: ' + (k.available));
     return k.available;
   }) as DocBookCopy;
 
