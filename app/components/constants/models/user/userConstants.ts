@@ -10,3 +10,5 @@ export enum  userGracePeriodDays {
   PROFESSOR = 14,
   NORMAL_USER = 7
 }
+
+export const maxLoans = 5;
