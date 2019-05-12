@@ -22,13 +22,32 @@ export class UserService extends BaseService<LeanUser, DocUser> {
    * Finds all users that the current date is past the notificationDate and
    * notification is not sent
    */
-  async getNotificationUsersMemberCard() {
+  async getNotificationUsersMemberCard(): Promise<DocUser[]> {
     return this.find({
       $and: [
         {'memberCard.isNotificationSent': false},
-        {'memberCard.notificationSendoutDate': {$lt: moment()}},
+        {'memberCard.notificationSendoutDate': {$lt: moment().toDate()}},
       ]
     })
+  }
+
+  /**
+   * Sends notifications to all users whose card is about to expire
+   */
+  async sendNotificationsForMemberCardExpiration(): Promise<void> {
+    const users = await this.getNotificationUsersMemberCard();
+    const promises = [];
+    users.forEach(user => {
+      const expirationDate = moment(user.memberCard.expirationDate);
+      const sendOutDate = moment(user.memberCard.notificationSendoutDate);
+      const emailContent = notificationConstats.email.MEMBER_CARD_NEAR_EXPIRATION.content
+        .replace('<daysUntilExpiration>', expirationDate.diff(sendOutDate, 'days').toString());
+      promises.push(sendMail(user.mailingAddress, emailContent, notificationConstats.email.MEMBER_CARD_NEAR_EXPIRATION.subject));
+      user.memberCard.notificationSendoutDate = moment();
+      user.memberCard.isNotificationSent = true;
+      promises.push(user.save());
+    });
+    await Promise.all(promises);
   }
 
   /**

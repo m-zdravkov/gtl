@@ -11,6 +11,10 @@ export const notificationConstats = {
         content: 'You have an overdue book: <bookTitle> with ISBN: ' +
           '<ISBN> that should be returned as soon as possible'
       }
+    },
+    MEMBER_CARD_NEAR_EXPIRATION: {
+      subject: 'GTL Member card expiration',
+      content: 'Your member card is about to expire in <daysUntilExpiration> days.'
     }
   }
 };

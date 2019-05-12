@@ -20,6 +20,6 @@ export async function sendBookNotifications(req: Request): Promise<void> {
 export async function sendMembershipCardsNotifications(req: Request): Promise<void> {
   const db = await getConnection();
   const userService = new UserService(db);
-  await userService.getNotificationUsersMemberCard();
+  await userService.sendNotificationsForMemberCardExpiration();
 }
 
