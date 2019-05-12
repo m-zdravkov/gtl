@@ -19,7 +19,7 @@ export async function createCampus(): Promise<DocCampus> {
   const db = await getConnection();
   const campusService = new CampusService(db);
   const campus = new Campus(generateRandomString(10), generateRandomString(10));
-  return await campusService.create(campus).save();
+  return campusService.create(campus).save();
 }
 
 export async function createUser(userType: UserType, campusId: ObjectId): Promise<DocUser> {
