@@ -1,12 +1,12 @@
 require('../app/components/helpers/ArrayExtensions');
-import { UserType } from '../app/components/constants/models/user/userConstants';
+/*import { UserType } from '../app/components/constants/models/user/userConstants';
 import { User } from '../app/models/user/User';
 import { Types } from "mongoose";
 import { BookCopy } from '../app/models/book/BookCopy';
 import { Book } from '../app/models/book/Book';
 import { Campus } from '../app/models/campus/Campus';
 import { MemberCard } from '../app/models/user/MemberCard';
-import * as moment from 'moment';
+import * as moment from 'moment';*/
 const randString = require('random-string');
 export function generateRandomString(length: number): string {
   return randString({length: length});
@@ -27,6 +27,7 @@ export function generateRandomNumber(length: number): number {
   max = max - min;
   return min + Math.floor((Math.random() * max) + 1);
 }
+/*
 export function createUser(userType: UserType): User {
   const user = new User(
     userType, generateRandomString(10), createCampus(), generateRandomString(10),
@@ -64,4 +65,4 @@ export function createMemberCard(): MemberCard {
     false);
   memberCard._id = new Types.ObjectId();
   return memberCard;
-}
+}*/
