@@ -21,6 +21,7 @@ import { fail } from 'assert';
 import { ErrorHandler } from '../../../app/components/ErrorHandler';
 import { DocUser } from '../../../app/models/user/User';
 import { create } from 'domain';
+import { DocCampus } from '../../../app/models/campus/Campus';
 
 const chaiHttp = require('chai-http');
 const expect = chai.expect;
@@ -35,12 +36,12 @@ before(async () => {
 describe('The book controller', () => {
   let book: DocBook;
   let user: DocUser;
-  let campus;
+  let campus: DocCampus;
   let copy: DocBookCopy;
 
   beforeEach(async() => {
     campus = await createCampus();
-    user = await createUser(userTypesEnum.NORMAL_USER, campus.id);
+    user = await createUser(userTypesEnum.NORMAL_USER, campus._id);
     book = await createBook();
     copy = await createBookCopy(book);
   });
@@ -102,7 +103,7 @@ describe('The book controller', () => {
   });
 
   it('should not loan to an user with too many loans', async() => {
-    const userIneligible: DocUser = await createUser(userTypesEnum.NORMAL_USER, campus);
+    const userIneligible: DocUser = await createUser(userTypesEnum.NORMAL_USER, campus._id);
     let copies: DocBookCopy[] = [];
 
     // Make sure we have maxLoans + 1 copies available
