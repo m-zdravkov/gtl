@@ -1,8 +1,8 @@
 import { defaultCtrlCall } from './UtilResources';
 import {createBook, getBooks} from '../../controllers/book/BookCtrl';
-import { Request, Response } from 'express';
+import {Request, Response, Router} from 'express';
 
-module.exports = (router: any) => {
+module.exports = (router: Router) => {
 
   // View compliance data
   router.post(
