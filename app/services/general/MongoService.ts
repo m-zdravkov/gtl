@@ -42,7 +42,8 @@ class MongoService {
 
       if (lean) {
         query = query.lean();
-      }if (projection) {
+      }
+      if (projection) {
         query = query.select(projection);
       }
 
@@ -130,11 +131,11 @@ class MongoService {
       resolve(DbModel.findOneAndUpdate(conditions, update)
         .exec()
         .catch(err => {
-          reject(ErrorHandler.handleErr(
+          throw ErrorHandler.handleErr(
             null,
             `Could not update ${modelName.toLowerCase()} models. Conditions: ` +
             `${conditions} update: ${update}`,
-            constants.errType.DB, 400, err));
+            constants.errType.DB, 400, err);
         }));
     });
   };
@@ -156,9 +157,9 @@ class MongoService {
     return modelObject
       .save()
       .catch(err => {
-        ErrorHandler.handleErrDb('DbService.save', 'Could not save the model.', err);
+        throw ErrorHandler.handleErrDb('DbService.save', 'Could not save the model.', err);
       });
-  };
+  }
 }
 
 /**
