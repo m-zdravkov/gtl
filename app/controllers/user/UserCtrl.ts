@@ -3,6 +3,8 @@ import { UserService } from '../../services/user/UserService';
 import { getConnection } from '../../components/database/DbConnect';
 import { DocUser } from '../../models/user/User';
 import { ErrorHandler } from '../../components/ErrorHandler';
+import { BookCopyService } from '../../services/book/BookCopyService';
+import { DocBookCopy } from '../../models/book/BookCopy';
 import { AuditService } from '../../services/audit/AuditService';
 import { actionEnum, modelEnum } from '../../components/constants/models/audit/auditConstants';
 
@@ -64,4 +66,31 @@ export async function updateUser(req: Request): Promise<DocUser> {
 
   await existingUser.save();
   return userService.findOne({ssn: user.ssn});
+}
+
+export async function returnBook(req: Request): Promise<void> {
+  const fName = 'UserCtrl.returnBook';
+  const db = await getConnection();
+  const userService = new UserService(db);
+  const bookCopyService = new BookCopyService(db);
+  const user = await userService.findOne({ssn: req.params.ssn}, 'takenBooks', 'takenBooks');
+  if (!user) {
+    throw ErrorHandler.handleErrDb(fName, 'User not found');
+  }
+  const oldUserTakenBooks = JSON.parse(JSON.stringify(user.takenBooks));
+  user.takenBooks = user.takenBooks as DocBookCopy[];
+  const copy = user.takenBooks.find(copy => {
+    copy = copy as DocBookCopy;
+    return copy._id.toHexString() === req.params.bookCopyId;
+  }) as DocBookCopy;
+  if (!copy) {
+    throw ErrorHandler.handleErrDb(fName, 'The book copy has already been returned');
+  }
+  await bookCopyService.resetCopy(copy);
+  await user.update({ $pull: { takenBooks: copy._id } });
+  const savedUser = await userService.findByIdLean(user._id);
+  const auditService = new AuditService(db);
+  auditService.createAudit(
+    modelEnum.USER, actionEnum.RETURN_BOOK, user._id, JSON.stringify(savedUser.takenBooks),
+   oldUserTakenBooks);
 }
