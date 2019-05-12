@@ -5,6 +5,13 @@ import * as validator from 'mongoose-validators';
 export class Campus extends BaseModel {
   address: string;
   name: string;
+
+
+  constructor(address: string, name: string) {
+    super();
+    this.address = address;
+    this.name = name;
+  }
 }
 
 export interface DocCampus extends Document, Campus {

@@ -53,4 +53,8 @@ export class ErrorHandler {
   static handleErrUnknown(functionName: string, msg: string, inner?: any): GTLError  {
     return this.handleErr(functionName, msg, constants.errType.UNKNOWN, 400, inner);
   }
+
+  static handleErrExternal(functionName: string, msg: string, inner?: any): GTLError  {
+    return this.handleErr(functionName, msg, constants.errType.EXTERNAL, 400, inner);
+  }
 }

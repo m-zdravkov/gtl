@@ -29,6 +29,9 @@ export async function getConnection(): Promise<Connection> {
 }
 
 function requireFiles(db: Connection): void {
+  console.log('******! DbConnect Require Files !******');
+  global.masterDbInit = false;
+  global.masterDbReady = true;
   const logger = new Logger();
   logger.logMsg('******! DbConnect Require Files !******');
   try {
@@ -39,6 +42,11 @@ function requireFiles(db: Connection): void {
     require('../../models/book/WishlistItem').default(db);
     require('../../models/user/User').default(db);
     require('../../models/audit/Audit').default(db);
+
+    if (global.masterDbInit) {
+      global.masterDbInit = false;
+    }
+    global.masterDbReady = true;
   } catch (error) {
     logger.logErr(`Requiring and initializing models threw an exception: ${error}`);
   }

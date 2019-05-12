@@ -1,12 +1,20 @@
 import {BaseModel} from '../BaseModel';
-import {Connection, Schema, Document} from 'mongoose';
+import { Schema, Document } from 'mongoose';
 import {Moment} from 'moment';
 
 export class MemberCard extends BaseModel {
     expirationDate: Moment;
     notificationSendoutDate: Moment;
-    isNotificationSent: Boolean;
+    isNotificationSent: boolean;
 
+
+  constructor(expirationDate: Moment, notificationSendoutDate: Moment,
+              isNotificationSent: boolean) {
+    super();
+    this.expirationDate = expirationDate;
+    this.notificationSendoutDate = notificationSendoutDate;
+    this.isNotificationSent = isNotificationSent;
+  }
 }
 
 export interface LeanMemberCard extends MemberCard {

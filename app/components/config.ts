@@ -26,8 +26,19 @@ export const config = {
     },
     production: false
   },
-  databaseName: process.env.dbName ? process.env.dbName : 'masterDb',
-  deleteDevelopmentDb: false
+  databaseName: process.env.dbName || 'masterDb',
+  deleteDevelopmentDb: false,
+  smtp: {
+    auth: {
+      user: process.env.SMTPUser,
+      pass: process.env.SMTPPass,
+      email: process.env.SMTPEmail
+    },
+    host: process.env.SMTPHost || 'smtp.gmail.com',
+    name: process.env.SMTPname,
+    port: process.env.SMTPPort || 465,
+    sendEmail: process.env.SMTPSendEmail || false
+  }
 };
 
 export function setDevelopmentEnv(): void {

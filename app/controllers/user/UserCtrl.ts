@@ -3,7 +3,6 @@ import { UserService } from '../../services/user/UserService';
 import { getConnection } from '../../components/database/DbConnect';
 import { DocUser } from '../../models/user/User';
 import { ErrorHandler } from '../../components/ErrorHandler';
-import { stringify } from 'querystring';
 
 export async function createUser(req: Request): Promise<DocUser> {
   const fName = 'UserCtrl.createUser';
