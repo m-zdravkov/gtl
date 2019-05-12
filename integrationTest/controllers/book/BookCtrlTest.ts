@@ -22,6 +22,8 @@ import { ErrorHandler } from '../../../app/components/ErrorHandler';
 import { DocUser } from '../../../app/models/user/User';
 import { create } from 'domain';
 import { DocCampus } from '../../../app/models/campus/Campus';
+import { getConnection } from '../../../app/components/database/DbConnect';
+import { UserService } from '../../../app/services/user/UserService';
 
 const chaiHttp = require('chai-http');
 const expect = chai.expect;
@@ -74,14 +76,19 @@ describe('The book controller', () => {
     expect(books[0].ISBN).to.equal(book.ISBN);
   });
 
-  it('should loan an available book copy to an eligible user and return the copy', async() => {
+  it('should loan an available book copy to an eligible user', async() => {
     let res = await chai.request(server)
       .put(`/books/${book.ISBN}/loan`)
       .set('Content-Type', 'application/json')
       .send({ssn: user.ssn});
 
-    const resCopy: DocBookCopy = res.body;
-    expect(resCopy._id).to.equal(copy._id.toHexString());
+    const savedUser = JSON.parse(JSON.stringify(
+      await new UserService(await getConnection()).findOneLean({ssn: user.ssn})));
+    const foundCopy = savedUser.takenBooks
+      .find((takenBookCopyId: any) => takenBookCopyId === copy._id.toHexString());
+
+    expect(res.status).to.equal(200);
+    expect(!!foundCopy).to.be.equal(true);
   });
 
   it('should not loan an unexisting ISBN', async() => {
@@ -91,6 +98,7 @@ describe('The book controller', () => {
       .send({ssn: user.ssn});
 
     expect(res).to.have.status(400);
+    expect(res.body.msg).to.equal('Book ISBN not found');
   });
 
   it('should not loan to an unexisting user', async() => {
@@ -100,6 +108,7 @@ describe('The book controller', () => {
       .send({ssn: user.ssn + 'fail'});
 
     expect(res).to.have.status(400);
+    expect(res.body.msg).to.equal('User SSN not found');
   });
 
   it('should not loan to an user with too many loans', async() => {
@@ -120,6 +129,7 @@ describe('The book controller', () => {
       .send({ssn: userIneligible.ssn});
 
     expect(res).to.have.status(400);
+    expect(res.body.msg).to.equal(`User can not loan more than ${maxLoans} books`);
   });
 
   it('should not loan a book without copies', async() => {
@@ -130,6 +140,7 @@ describe('The book controller', () => {
       .send({ssn: user.ssn});
 
     expect(res).to.have.status(400);
+    expect(res.body.msg).to.equal('No copies are available');
   });
 
   it('should not loan a restricted book', async() => {
@@ -142,5 +153,6 @@ describe('The book controller', () => {
       .send({ssn: user.ssn});
 
     expect(res).to.have.status(400);
+    expect(res.body.msg).to.equal('Book is restricted');
   });
 });
