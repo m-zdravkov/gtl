@@ -15,9 +15,9 @@ export async function defaultCtrlCall(res: Response,
   } catch (err) {
 
     if (!config.database.production) {
-      new Logger().logErr(err);
+      new Logger().logErr(JSON.stringify(err));
       if (err.inner) {
-        new Logger().logErr(err.inner);
+        new Logger().logErr(JSON.stringify(err.inner));
       }
     }
 
