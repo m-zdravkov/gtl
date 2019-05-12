@@ -62,8 +62,10 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
   const userService = new UserService(db);
 
   // Check if book and user exist
-  const book: DocBook = await bookService.findOne({ISBN: isbn}, undefined, 'bookCopies');
-  await book.populate('bookCopies').execPopulate();
+  const book: DocBook = await bookService.findOne({ISBN: isbn}, undefined, {
+    path: 'bookCopies',
+    model: 'BookCopy'
+  });
   if (!book) {
     throw ErrorHandler.handleErrDb(fName, 'Book ISBN not found');
   }
