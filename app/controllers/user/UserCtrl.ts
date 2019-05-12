@@ -77,6 +77,7 @@ export async function returnBook(req: Request): Promise<void> {
   if (!user) {
     throw ErrorHandler.handleErrDb(fName, 'User not found');
   }
+  const oldUserTakenBooks = JSON.parse(JSON.stringify(user.takenBooks));
   user.takenBooks = user.takenBooks as DocBookCopy[];
   const copy = user.takenBooks.find(copy => {
     copy = copy as DocBookCopy;
@@ -91,5 +92,5 @@ export async function returnBook(req: Request): Promise<void> {
   const auditService = new AuditService(db);
   auditService.createAudit(
     modelEnum.USER, actionEnum.RETURN_BOOK, user._id, JSON.stringify(savedUser.takenBooks),
-    JSON.stringify(user.takenBooks));
+   oldUserTakenBooks);
 }
