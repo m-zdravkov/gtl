@@ -17,5 +17,6 @@ export enum actionEnum {
   LIST = 'LIST',
   FIND = 'FIND',
   UPDATE = 'UPDATE',
-  DELETE = 'DELETE'
+  DELETE = 'DELETE',
+  RETURN_BOOK = 'RETURN_BOOK'
 }

@@ -86,5 +86,10 @@ export async function returnBook(req: Request): Promise<void> {
     throw ErrorHandler.handleErrDb(fName, 'The book copy has already been returned');
   }
   await bookCopyService.resetCopy(copy);
-  await user.update({ $pull: { takenBooks: copy._id } })
+  await user.update({ $pull: { takenBooks: copy._id } });
+  const savedUser = await userService.findByIdLean(user._id);
+  const auditService = new AuditService(db);
+  auditService.createAudit(
+    modelEnum.USER, actionEnum.RETURN_BOOK, user._id, JSON.stringify(savedUser.takenBooks),
+    JSON.stringify(user.takenBooks));
 }
