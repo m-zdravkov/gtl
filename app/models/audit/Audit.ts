@@ -14,12 +14,7 @@ export class Audit extends BaseModel {
   action: ActionType;
   model: ModelType;
   createTime: Moment;
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-  userId?: ObjectIdOrRef<User>;
-  newValue?: string;
-  oldValue?: string;
+  librarianId?: ObjectIdOrRef<User>; // FIX: User should be Librarian
   newObject?: object;
   oldObject?: object;
   modelId?: ObjectIdOrRef<string>;
@@ -34,14 +29,7 @@ export interface LeanAudit extends Audit {
 }
 
 export const AuditSchema = new Schema({
-  userId: {type: Schema.Types.ObjectId, ref: 'User', required: false},
-  firstName: {type: String, required: false},
-  lastName: {type: String, required: false},
-  email: {
-    type: String,
-    required: false,
-    validate: [validator.isEmail()]
-  },
+  librarianId: {type: Schema.Types.ObjectId, ref: 'User', required: false},
   model: {
     type: String, required: true,
     'enum': models
@@ -51,8 +39,6 @@ export const AuditSchema = new Schema({
     type: String, required: true,
     'enum': actions
   },
-  newValue: {type: String, required: false},
-  oldValue: {type: String, required: false},
   newObject: {type: Object, required: false},
   oldObject: {type: Object, required: false},
   createTime: {type: Date, required: true}
