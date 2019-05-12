@@ -62,7 +62,7 @@ export async function updateUser(req: Request): Promise<DocUser> {
   if (!existingUser) {
     throw ErrorHandler.handleErrDb(fName, 'User does not exist');
   }
-  const oldUser = existingUser;
+  const oldUser = JSON.parse(JSON.stringify(existingUser));
 
   Object.keys(req.body).map(key => {
     existingUser[key] = req.body[key];
