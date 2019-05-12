@@ -58,7 +58,6 @@ export async function updateUser(req: Request): Promise<DocUser> {
   }
 
   const existingUser = await userService.findOne({ssn: oldssn});
-  auditService.createAudit(modelEnum.USER, actionEnum.FIND, user._id);
   if (!existingUser) {
     throw ErrorHandler.handleErrDb(fName, 'User does not exist');
   }
