@@ -119,7 +119,7 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
     const savedUser: DocUser = await user.save();
     auditService.createAudit(modelEnum.USER, actionEnum.UPDATE, user._id, savedUser, oldUser);
     const savedCopy: DocBookCopy = await copy.save();
-    auditService.createAudit(modelEnum.BOOK, actionEnum.UPDATE, user._id, savedCopy, oldCopy);
+    auditService.createAudit(modelEnum.BOOK_COPY, actionEnum.UPDATE, user._id, savedCopy, oldCopy);
     return savedCopy;
   } catch (e) {
     throw ErrorHandler.handleErrValidation(fName, e.msg, e.inner);
