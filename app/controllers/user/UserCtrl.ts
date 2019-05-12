@@ -46,6 +46,7 @@ export async function updateUser(req: Request): Promise<DocUser> {
   const fName = 'UserCtrl.updateUser';
   const db = await getConnection();
   const userService = new UserService(db);
+  const auditService = new AuditService(db);
 
   let user = req.body;
   let oldssn;
@@ -57,11 +58,17 @@ export async function updateUser(req: Request): Promise<DocUser> {
   }
 
   const existingUser = await userService.findOne({ssn: oldssn});
+  auditService.createAudit(modelEnum.USER, actionEnum.FIND, user._id);
+  if (!existingUser) {
+    throw ErrorHandler.handleErrDb(fName, 'User does not exist');
+  }
+  const oldUser = existingUser;
 
   Object.keys(req.body).map(key => {
     existingUser[key] = req.body[key];
   });
 
-  await existingUser.save();
-  return userService.findOne({ssn: user.ssn});
+  const updatedUser = await existingUser.save();
+  auditService.createAudit(modelEnum.USER, actionEnum.UPDATE, user._id, updatedUser, oldUser);
+  return updatedUser;
 }
