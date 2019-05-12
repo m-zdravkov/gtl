@@ -76,13 +76,11 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
     path: 'bookCopies',
     model: 'BookCopy'
   });
-  await auditService.createAudit(modelEnum.BOOK, actionEnum.FIND);
   if (!book) {
     throw ErrorHandler.handleErrDb(fName, 'Book ISBN not found');
   }
 
   const user: DocUser = await userService.findOne({ssn: ssn});
-  await auditService.createAudit(modelEnum.USER, actionEnum.FIND);
   if (!user) {
     throw ErrorHandler.handleErrDb(fName, 'User SSN not found');
   }
