@@ -86,7 +86,7 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
   if (!user) {
     throw ErrorHandler.handleErrDb(fName, 'User SSN not found');
   }
-  const oldUser: DocUser = user;
+  const oldUser: DocUser = JSON.parse(JSON.stringify(user));
 
   if (book.lendingRestrictions.length > 0) {
     throw ErrorHandler.handleErrValidation(fName, 'Book is restricted');
@@ -107,7 +107,7 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
   if (!copy) {
     throw ErrorHandler.handleErrDb(fName, 'No copies are available');
   }
-  const oldCopy: DocBookCopy = copy;
+  const oldCopy: DocBookCopy = JSON.parse(JSON.stringify(copy));
 
   // Assign loan
   copy.available = false;
@@ -119,7 +119,7 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
     const savedUser: DocUser = await user.save();
     auditService.createAudit(modelEnum.USER, actionEnum.UPDATE, user._id, savedUser, oldUser);
     const savedCopy: DocBookCopy = await copy.save();
-    auditService.createAudit(modelEnum.USER, actionEnum.UPDATE, user._id, savedCopy, oldCopy);
+    auditService.createAudit(modelEnum.BOOK, actionEnum.UPDATE, user._id, savedCopy, oldCopy);
     return savedCopy;
   } catch (e) {
     throw ErrorHandler.handleErrValidation(fName, e.msg, e.inner);
