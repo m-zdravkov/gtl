@@ -1,6 +1,6 @@
 import { defaultCtrlCall } from './UtilResources';
 import { createBook, getBooks, loanBook, getBook } from '../../controllers/book/BookCtrl';
-import {Request, Response, Router} from 'express';
+import { Request, Response, Router } from 'express';
 
 module.exports = (router: Router) => {
 

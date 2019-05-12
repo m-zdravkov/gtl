@@ -10,17 +10,24 @@ import * as moment from 'moment';
 import { returnPeriodDays } from '../../components/constants/models/book/bookConstants'
 import { maxLoans } from '../../components/constants/models/user/userConstants';
 import { BookCopyService } from '../../services/book/BookCopyService';
+import { AuditService } from '../../services/audit/AuditService';
+import { actionEnum, modelEnum } from '../../components/constants/models/audit/auditConstants';
 
 export async function createBook(req: Request): Promise<DocBook> {
   const fName = 'BookCtrl.createBook';
   const reqBody = req.body;
   const db = await getConnection();
   const bookService = new BookService(db);
+  let savedObject;
   try {
-    return bookService.create(reqBody).save();
+    savedObject = await bookService.create(reqBody).save();
   } catch (e) {
     throw ErrorHandler.handleErrValidation(fName, e.msg, e.inner);
   }
+  const auditService = new AuditService(db);
+  auditService.createAudit(modelEnum.BOOK, actionEnum.CREATE, savedObject._id,
+    JSON.parse(JSON.stringify(savedObject)));
+  return savedObject;
 }
 
 export async function getBooks(req: Request): Promise<DocBook[]> {
@@ -43,13 +50,15 @@ export async function getBooks(req: Request): Promise<DocBook[]> {
     }
     const db = await getConnection();
     const bookService = new BookService(db);
+    const auditService = new AuditService(db);
+    auditService.createAudit(modelEnum.BOOK, actionEnum.LIST);
     return bookService.find(bookObject);
 }
 
 export async function getBook(req: Request): Promise<DocBook> {
-    const db = await getConnection();
-    const bookService = new BookService(db);
-    return bookService.findOne({ISBN: req.params.isbn});
+  const db = await getConnection();
+  const bookService = new BookService(db);
+  return bookService.findOne({ISBN: req.params.isbn});
 }
 
 export async function loanBook(req: Request): Promise<DocBookCopy> {
@@ -60,20 +69,24 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
   const db = await getConnection();
   const bookService = new BookService(db);
   const userService = new UserService(db);
+  const auditService = new AuditService(db);
 
   // Check if book and user exist
   const book: DocBook = await bookService.findOne({ISBN: isbn}, undefined, {
     path: 'bookCopies',
     model: 'BookCopy'
   });
+  await auditService.createAudit(modelEnum.BOOK, actionEnum.FIND);
   if (!book) {
     throw ErrorHandler.handleErrDb(fName, 'Book ISBN not found');
   }
 
   const user: DocUser = await userService.findOne({ssn: ssn});
+  await auditService.createAudit(modelEnum.USER, actionEnum.FIND);
   if (!user) {
     throw ErrorHandler.handleErrDb(fName, 'User SSN not found');
   }
+  const oldUser: DocUser = user;
 
   if (book.lendingRestrictions.length > 0) {
     throw ErrorHandler.handleErrValidation(fName, 'Book is restricted');
@@ -84,19 +97,17 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
     throw ErrorHandler.handleErrValidation(fName, `User can not loan more than ${maxLoans} books`);
   }
 
-  // Find one available copy
+  // Find one available copy from the Book
   book.bookCopies = book.bookCopies as BookCopy[];
-  const bookCopyService = new BookCopyService(db);
-  throw ErrorHandler.handleErrDb(fName, `EBI SI MAIKATA:\n${JSON.stringify(book)}\n${JSON.stringify(bookCopyService.find({}))}`);
   const copy: DocBookCopy = book.bookCopies.find(k => {
     k = k as BookCopy;
-    // throw ErrorHandler.handleErrDb(fName, 'EBI SI MAIKATA: ' + (k.available));
     return k.available;
   }) as DocBookCopy;
 
   if (!copy) {
     throw ErrorHandler.handleErrDb(fName, 'No copies are available');
   }
+  const oldCopy: DocBookCopy = copy;
 
   // Assign loan
   copy.available = false;
@@ -105,8 +116,11 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
   user.takenBooks.push(copy);
 
   try {
-    await user.save();
-    return copy.save();
+    const savedUser: DocUser = await user.save();
+    auditService.createAudit(modelEnum.USER, actionEnum.UPDATE, user._id, savedUser, oldUser);
+    const savedCopy: DocBookCopy = await copy.save();
+    auditService.createAudit(modelEnum.USER, actionEnum.UPDATE, user._id, savedCopy, oldCopy);
+    return savedCopy;
   } catch (e) {
     throw ErrorHandler.handleErrValidation(fName, e.msg, e.inner);
   }

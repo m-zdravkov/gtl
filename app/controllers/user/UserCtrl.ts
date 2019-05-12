@@ -5,17 +5,23 @@ import { DocUser } from '../../models/user/User';
 import { ErrorHandler } from '../../components/ErrorHandler';
 import { BookCopyService } from '../../services/book/BookCopyService';
 import { DocBookCopy } from '../../models/book/BookCopy';
+import { AuditService } from '../../services/audit/AuditService';
+import { actionEnum, modelEnum } from '../../components/constants/models/audit/auditConstants';
 
 export async function createUser(req: Request): Promise<DocUser> {
   const fName = 'UserCtrl.createUser';
   const reqBody = req.body;
   const db = await getConnection();
   const userService = new UserService(db);
+  let savedObject;
   try {
-    return userService.create(reqBody).save();
+    savedObject = userService.create(reqBody).save();
   } catch (e) {
     throw ErrorHandler.handleErrValidation(fName, e.msg, e.inner);
   }
+  const auditService = new AuditService(db);
+  auditService.createAudit(modelEnum.USER, actionEnum.CREATE, savedObject._id, savedObject);
+  return savedObject;
 }
 
 export async function getUser(req: Request): Promise<DocUser> {
@@ -26,11 +32,13 @@ export async function getUser(req: Request): Promise<DocUser> {
     } = {
       ssn: req.query.ssn
     };
-
+    let user ;
     const db = await getConnection();
     const userService = new UserService(db);
-
-    return userService.findOne(queryUser);
+    user = userService.findOne(queryUser);
+    const auditService = new AuditService(db);
+    auditService.createAudit(modelEnum.USER, actionEnum.FIND, user._id);
+    return user;
   } else {
     throw ErrorHandler.handleErrorPrecondition(fName, 'Missing parameter ssn');
   }
