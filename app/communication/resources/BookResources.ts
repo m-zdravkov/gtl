@@ -1,8 +1,8 @@
 import { defaultCtrlCall } from './UtilResources';
-import {createBook, getBooks} from '../../controllers/book/BookCtrl';
-import { Request, Response } from 'express';
+import { createBook, getBooks, loanBook, getBook } from '../../controllers/book/BookCtrl';
+import { Request, Response, Router } from 'express';
 
-module.exports = (router: any) => {
+module.exports = (router: Router) => {
 
   // View compliance data
   router.post(
@@ -14,5 +14,15 @@ module.exports = (router: any) => {
     '/books',
     (req: Request, res: Response) => {
       return defaultCtrlCall(res, getBooks, req);
+    });
+  router.get(
+    '/books/:isbn',
+    (req: Request, res: Response) => {
+      return defaultCtrlCall(res, getBook, req);
+    });
+  router.put(
+    '/books/:isbn/loan',
+    (req: Request, res: Response) => {
+      return defaultCtrlCall(res, loanBook, req);
     });
 };

@@ -11,6 +11,7 @@ export class Book extends BaseModel {
     title: string;
     publishYear: number;
     subjectArea: string;
+    lendingRestrictions?: string[];
     description?: string;
 
     constructor(bookCopies: ObjectIdOrRef<BookCopy>[],
@@ -19,7 +20,8 @@ export class Book extends BaseModel {
                 title: string,
                 publishYear: number,
                 subjectArea: string,
-                description?: string ) {
+                description?: string,
+                lendingRestrictions?: string[] ) {
         super();
         this.bookCopies = bookCopies;
         this.ISBN = ISBN;
@@ -28,6 +30,9 @@ export class Book extends BaseModel {
         this.publishYear = publishYear;
         this.subjectArea = subjectArea;
         this.description = description;
+        if (lendingRestrictions) {
+          this.lendingRestrictions = lendingRestrictions;
+        }
     }
 }
 
@@ -39,7 +44,7 @@ export interface DocBook extends Book, Document {
 
 const BookSchema = new Schema({
     bookCopies: {type: [Schema.Types.ObjectId], ref: 'BookCopy', required: false},
-    ISBN: {type: String, required: true},
+    ISBN: {type: String, required: true, unique: true},
     author: {type: String, required: true},
     title: {type: String, required: true},
     publishYear: {
@@ -48,6 +53,7 @@ const BookSchema = new Schema({
       validate: { validator: validatePublishYear, msg: 'The book is not yet published' }
     },
     subjectArea: {type: String, required: true},
+    lendingRestrictions: {type: [String], required: false},
     description: {type: String, required: false}
 });
 

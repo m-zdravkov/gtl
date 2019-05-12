@@ -9,21 +9,16 @@ export class BookCopy extends BaseModel {
     takenDate: Moment;
     bookId: ObjectIdOrRef<Book>;
     expectedReturnDate: Moment;
-    lendingRestrictions?: string[];
     reminderSent?: boolean;
 
     constructor(available: boolean,
                 expectedReturnDate: Moment,
                 bookId: ObjectIdOrRef<Book>,
-                takenDate?: Moment,
-                lendingRestrictions?: string[]) {
+                takenDate?: Moment) {
         super();
         this.available = available;
         this.expectedReturnDate = expectedReturnDate;
         this.bookId = bookId;
-        if (lendingRestrictions) {
-          this.lendingRestrictions = lendingRestrictions;
-        }
         if (takenDate) {
             this.takenDate = takenDate;
         }
@@ -42,7 +37,6 @@ const BookCopySchema = new Schema({
   takenDate: {type: Date, required: false},
   bookId: {type: Schema.Types.ObjectId, ref: 'Book', required: true},
   expectedReturnDate: {type: Date, required: false},
-  lendingRestrictions: {type: [String], required: false},
   reminderSent: {type: Boolean, required: false}
 });
 export default function (db: Connection): void {
