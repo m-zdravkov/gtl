@@ -156,3 +156,30 @@ describe('The book controller', () => {
     expect(res.body.msg).to.equal('Book is restricted');
   });
 });
+
+describe('The book controller createBookCopy', () => {
+  let book: DocBook;
+  let copy: DocBookCopy;
+
+  beforeEach(async() => {
+    book = await createBook();
+    copy = await createBookCopy(book);
+  });
+
+  it('should fail creating a copy for an unexisting book', async() => {
+    let res = await chai.request(server)
+      .post(`/books/${book.ISBN + 'fail'}/copies`)
+      .send(copy);
+
+    expect(res).to.have.status(400);
+  });
+
+  it('should register a new book copy reference in the Book document', async() => {
+    let res = await chai.request(server)
+      .post(`/books/${book.ISBN}/copies`)
+      .send(copy);
+
+    expect(res).to.have.status(200);
+    expect(book.bookCopies).to.contain(copy._id.toHexString());
+  });
+});

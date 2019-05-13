@@ -124,14 +124,23 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
   }
 }
 
-export async function createBookCopy(req: Request): Promise<DocBook> {
+export async function createBookCopy(req: Request): Promise<DocBookCopy> {
     const fName = 'BookCtrl.createBookCopy';
-    const reqBody = req.body;
     const db = await getConnection();
     const bookCopyService = new BookCopyService(db);
+    const bookService = new BookService(db);
     let savedObject;
+
+    const book: DocBook = await bookService.findOne({ISBN: req.params.isbn});
+    if (!book) {
+      throw ErrorHandler.handleErrDb(fName, 'Book ISBN does not exist');
+    }
+    const copy: BookCopy = new BookCopy(true, moment(), book._id);
+
     try {
-        savedObject = await bookCopyService.create(reqBody).save();
+        savedObject = await bookCopyService.create(copy).save();
+        book.bookCopies.push(copy._id);
+        await book.save();
     } catch (e) {
         throw ErrorHandler.handleErrValidation(fName, e.msg, e.inner);
     }
