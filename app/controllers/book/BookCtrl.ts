@@ -125,7 +125,7 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
 }
 
 export async function createBookCopy(req: Request): Promise<DocBookCopy> {
-    const fName = 'BookCtrl.createBookCopyFromIsbn';
+    const fName = 'BookCtrl.createBookCopy';
     const db = await getConnection();
     const bookCopyService = new BookCopyService(db);
     const bookService = new BookService(db);
