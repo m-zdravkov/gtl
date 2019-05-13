@@ -7,7 +7,7 @@ import { DocBookCopy, BookCopy } from '../../models/book/BookCopy';
 import { UserService } from '../../services/user/UserService';
 import { DocUser } from '../../models/user/User';
 import * as moment from 'moment';
-import { returnPeriodDays } from '../../components/constants/models/book/bookConstants'
+import { returnPeriodDays } from '../../components/constants/models/book/bookConstants';
 import { maxLoans } from '../../components/constants/models/user/userConstants';
 import { BookCopyService } from '../../services/book/BookCopyService';
 import { AuditService } from '../../services/audit/AuditService';
@@ -26,7 +26,7 @@ export async function createBook(req: Request): Promise<DocBook> {
   }
   const auditService = new AuditService(db);
   auditService.createAudit(modelEnum.BOOK, actionEnum.CREATE, savedObject._id,
-    JSON.parse(JSON.stringify(savedObject)));
+                           JSON.parse(JSON.stringify(savedObject)));
   return savedObject;
 }
 
@@ -122,4 +122,21 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
   } catch (e) {
     throw ErrorHandler.handleErrValidation(fName, e.msg, e.inner);
   }
+}
+
+export async function createBookCopy(req: Request): Promise<DocBook> {
+    const fName = 'BookCtrl.createBookCopy';
+    const reqBody = req.body;
+    const db = await getConnection();
+    const bookCopyService = new BookCopyService(db);
+    let savedObject;
+    try {
+        savedObject = await bookCopyService.create(reqBody).save();
+    } catch (e) {
+        throw ErrorHandler.handleErrValidation(fName, e.msg, e.inner);
+    }
+    const auditService = new AuditService(db);
+    auditService.createAudit(modelEnum.BOOK_COPY, actionEnum.CREATE, savedObject._id,
+                             JSON.parse(JSON.stringify(savedObject)));
+    return savedObject;
 }

@@ -2,6 +2,7 @@ import { BaseModel, ObjectIdOrRef } from '../BaseModel';
 import {Connection, Document, Schema} from 'mongoose';
 import {Moment} from 'moment';
 import { Book } from './Book';
+import {NextFunction} from 'express';
 
 export class BookCopy extends BaseModel {
 
@@ -39,6 +40,18 @@ const BookCopySchema = new Schema({
   expectedReturnDate: {type: Date, required: false},
   reminderSent: {type: Boolean, required: false}
 });
+
+BookCopySchema.pre('save', async function (next: NextFunction): Promise<void> {
+    await this.populate('bookId').execPopulate();
+    if (!this.bookId) {
+        const err = new Error('Book doesn\'t exist');
+        await this.depopulate('bookId');
+        next(err);
+    }
+    await this.depopulate('bookId');
+    next();
+});
+
 export default function (db: Connection): void {
     db.model<DocBookCopy>('BookCopy', BookCopySchema);
 }
