@@ -32,7 +32,7 @@ module.exports = (router: Router) => {
             return defaultCtrlCall(res, loanBook, req);
         });
     router.post(
-        '/books/copies',
+        '/books/:isbn/copies',
         (req: Request, res: Response) => {
             return defaultCtrlCall(res, createBookCopy, req);
         });
