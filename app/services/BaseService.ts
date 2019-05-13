@@ -13,7 +13,7 @@ export type Options = object;
 export class BaseService<Lean extends BaseModel, Doc extends BaseModel & Document> {
   protected db: Connection;
   private modelName: string;
-  private mongoService: any;
+  protected mongoService: any;
 
   constructor(modelName: string, db: Connection) {
     this.modelName = modelName;
@@ -113,6 +113,10 @@ export class BaseService<Lean extends BaseModel, Doc extends BaseModel & Documen
 
   update(conditions: Condition, updateObject: UpdateObject, options?: Options): Promise<void> {
     return this.mongoService.update(this.modelName, conditions, updateObject, options);
+  }
+
+  updateMany(conditions: Condition, updateObject: UpdateObject, options?: Options): Promise<void> {
+    return this.mongoService.getModel(this.modelName).updateMany(conditions, updateObject, options);
   }
 
   count(conditions: Condition): Promise<number> {

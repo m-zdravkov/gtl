@@ -14,7 +14,7 @@ export function userHandler(router: Router): void {
     router.put('/users', (req, res) => {
         return defaultCtrlCall(res, updateUser, req);
     });
-  router.put(
+    router.put(
     '/users/:ssn/bookcopies/:bookCopyId/return',
     (req: Request, res: Response) => {
       return defaultCtrlCall(res, returnBook, req);

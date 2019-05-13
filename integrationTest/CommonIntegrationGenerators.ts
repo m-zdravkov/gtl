@@ -18,7 +18,8 @@ import { BookCopyService } from '../app/services/book/BookCopyService';
 export async function createCampus(): Promise<DocCampus> {
   const db = await getConnection();
   const campusService = new CampusService(db);
-  const campus = new Campus(generateRandomString(10), generateRandomString(10));
+  const campus = new Campus(
+    generateRandomString(10) + '@mailinator.com', generateRandomString(10));
   return campusService.create(campus).save();
 }
 
