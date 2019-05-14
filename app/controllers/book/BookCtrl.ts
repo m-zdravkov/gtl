@@ -7,7 +7,9 @@ import { DocBookCopy, BookCopy } from '../../models/book/BookCopy';
 import { UserService } from '../../services/user/UserService';
 import { DocUser } from '../../models/user/User';
 import * as moment from 'moment';
-import { returnPeriodDays } from '../../components/constants/models/book/bookConstants';
+import {
+  returnPeriod,
+} from '../../components/constants/models/book/bookConstants';
 import { maxLoans } from '../../components/constants/models/user/userConstants';
 import { BookCopyService } from '../../services/book/BookCopyService';
 import { AuditService } from '../../services/audit/AuditService';
@@ -110,14 +112,15 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
   // Assign loan
   copy.available = false;
   copy.takenDate = moment();
-  copy.expectedReturnDate = moment().add(returnPeriodDays, 'days');
+  copy.expectedReturnDate = moment()
+    .add(returnPeriod[user.userType].period,returnPeriod[user.userType].unit);
   user.takenBooks.push(copy);
 
   try {
     const savedUser: DocUser = await user.save();
     auditService.createAudit(modelEnum.USER, actionEnum.UPDATE, user._id, savedUser, oldUser);
     const savedCopy: DocBookCopy = await copy.save();
-    auditService.createAudit(modelEnum.BOOK_COPY, actionEnum.UPDATE, user._id, savedCopy, oldCopy);
+    auditService.createAudit(modelEnum.BOOK_COPY, actionEnum.LOAN_BOOK, copy._id, savedCopy, oldCopy);
     return savedCopy;
   } catch (e) {
     throw ErrorHandler.handleErrValidation(fName, e.msg, e.inner);
