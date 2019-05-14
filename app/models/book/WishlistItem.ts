@@ -2,6 +2,8 @@ import {BaseModel, ObjectIdOrRef} from '../BaseModel';
 import {Connection, Document, Schema} from 'mongoose';
 import { Book } from './Book';
 import {NextFunction} from 'express';
+import * as validator from 'mongoose-validators';
+
 
 export class WishlistItem extends BaseModel {
 
@@ -30,7 +32,7 @@ const WishlistItemSchema = new Schema({
     bookId: {type: Schema.Types.ObjectId, ref: 'Book', required: true, unique: true
     },
     numOfCopies: {type: Number, required: true},
-    reason: {type: String, required: false}
+    reason: {type: String, required: false, validate: validator.isLength(1, 255)}
 });
 
 WishlistItemSchema.pre('save', async function (next: NextFunction): Promise<void> {
