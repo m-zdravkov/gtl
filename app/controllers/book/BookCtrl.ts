@@ -149,3 +149,22 @@ export async function createBookCopy(req: Request): Promise<DocBookCopy> {
                              JSON.parse(JSON.stringify(savedObject)));
     return savedObject;
 }
+
+export async function setBookCopyStatus(req: Request): Promise<DocBookCopy> {
+  const fName = 'BookCtrl.setBookCopyStatus';
+  const db = await getConnection();
+  const bookCopyService = new BookCopyService(db);
+  let oldBookCopy;
+  const bookCopy = await bookCopyService.findById(req.params.copyId);
+  if (!bookCopy) {
+    throw ErrorHandler.handleErrDb(fName, 'Book copy was not found');
+  }
+  oldBookCopy = JSON.parse(JSON.stringify(bookCopy));
+  bookCopy.status = req.body.status;
+  const savedCopy = await bookCopy.save();
+
+  const auditService = new AuditService(db);
+  auditService.createAudit(modelEnum.BOOK_COPY, actionEnum.UPDATE, bookCopy._id,
+    JSON.parse(JSON.stringify(savedCopy)), oldBookCopy);
+  return bookCopy;
+}
