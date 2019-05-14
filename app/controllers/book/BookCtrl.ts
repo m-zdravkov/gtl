@@ -163,18 +163,19 @@ export async function countAvailableCopies(req: Request): Promise<any> {
       throw ErrorHandler.handleErrDb(fName, 'Book ISBN does not exist');
     }
 
-    const availableCopies = {count: 0};
+    // const availableCopies = {count: 0};
 
-    if (!book.bookCopies) {
-      return Promise.resolve(availableCopies);
-    }
+    // if (!book.bookCopies) {
+    //   return Promise.resolve(availableCopies);
+    // }
 
-    let count = book.bookCopies.filter(k => {
-      k = k as BookCopy;
-      return k.available;
-    }).length;
+    // let count = book.bookCopies.filter(k => {
+    //   k = k as BookCopy;
+    //   return k.available;
+    // }).length;
 
-    availableCopies.count = count;
+    // availableCopies.count = count;
 
-    return Promise.resolve(availableCopies);
+    // return Promise.resolve(availableCopies);
+    return bookService.countAvailableCopies(book.ISBN);
 }
