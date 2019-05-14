@@ -3,7 +3,7 @@ import { BookService } from '../../services/book/BookService';
 import { getConnection } from '../../components/database/DbConnect';
 import { DocBook } from '../../models/book/Book';
 import { ErrorHandler } from '../../components/ErrorHandler';
-import { DocBookCopy, BookCopy } from '../../models/book/BookCopy';
+import { DocBookCopy, BookCopy, LeanBookCopy } from '../../models/book/BookCopy';
 import { UserService } from '../../services/user/UserService';
 import { DocUser } from '../../models/user/User';
 import * as moment from 'moment';
@@ -148,4 +148,33 @@ export async function createBookCopy(req: Request): Promise<DocBookCopy> {
     auditService.createAudit(modelEnum.BOOK_COPY, actionEnum.CREATE, savedObject._id,
                              JSON.parse(JSON.stringify(savedObject)));
     return savedObject;
+}
+
+export async function countAvailableCopies(req: Request): Promise<any> {
+    const fName = 'BookCtrl.countAvailableCopies';
+    const db = await getConnection();
+    const bookService = new BookService(db);
+
+    const book: DocBook = await bookService.findOne({ISBN: req.params.isbn}, undefined, {
+      path: 'bookCopies',
+      model: 'BookCopy'
+    });
+    if (!book) {
+      throw ErrorHandler.handleErrDb(fName, 'Book ISBN does not exist');
+    }
+
+    const availableCopies = {count: 0};
+
+    if (!book.bookCopies) {
+      return Promise.resolve(availableCopies);
+    }
+
+    let count = book.bookCopies.filter(k => {
+      k = k as BookCopy;
+      return k.available;
+    }).length;
+
+    availableCopies.count = count;
+
+    return Promise.resolve(availableCopies);
 }

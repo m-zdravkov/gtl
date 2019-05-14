@@ -182,4 +182,23 @@ describe('The book controller createBookCopy', () => {
     expect(res).to.have.status(200);
     expect(book.bookCopies).to.contain(copy._id.toHexString());
   });
+
+  it('should return the correct amount of available copies', async() => {
+    const copy2 = await createBookCopy(book);
+    await createBookCopy(book);
+    await createBookCopy(book);
+
+    copy.available = false;
+    copy2.available = false;
+    await copy.save();
+    await copy2.save();
+
+
+    let res = await chai.request(server)
+      .get(`/books/${book.ISBN}/copies/count`)
+      .send();
+
+    expect(res).to.have.status(200);
+    expect(res.body.count).to.equal(2);
+  });
 });
