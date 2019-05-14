@@ -37,7 +37,7 @@ module.exports = (router: Router) => {
         (req: Request, res: Response) => {
             return defaultCtrlCall(res, createBookCopy, req);
         });
-    router.post(
+    router.put(
         '/books/:isbn/copies/:copyId',
         (req: Request, res: Response) => {
             return defaultCtrlCall(res, setBookCopyStatus, req);
