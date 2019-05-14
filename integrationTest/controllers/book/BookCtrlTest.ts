@@ -27,6 +27,7 @@ import { DocCampus } from '../../../app/models/campus/Campus';
 import { getConnection } from '../../../app/components/database/DbConnect';
 import { UserService } from '../../../app/services/user/UserService';
 import { Types } from 'mongoose';
+import { generateRandomString } from '../../../test/MockGenerators';
 
 const chaiHttp = require('chai-http');
 const expect = chai.expect;
@@ -214,6 +215,14 @@ describe('The book controller setBookCopyStatus', () => {
       .send({status: status});
     expect(res).to.have.status(400);
     expect(res.body.msg).to.be.equal('Book copy was not found');
+  });
+
+  it('should fail for exceeding maximum characters for status', async() => {
+    status = generateRandomString(20001);
+    let res = await chai.request(server)
+      .post(`/books/asd/copies/${bookCopy._id}`)
+      .send({status: status});
+    expect(res).to.have.status(400);
   });
 
 });

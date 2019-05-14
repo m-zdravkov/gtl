@@ -3,6 +3,7 @@ import {Connection, Document, Schema} from 'mongoose';
 import {Moment} from 'moment';
 import { Book } from './Book';
 import {NextFunction} from 'express';
+import * as validator from 'mongoose-validators';
 
 export class BookCopy extends BaseModel {
 
@@ -44,7 +45,7 @@ const BookCopySchema = new Schema({
   bookId: {type: Schema.Types.ObjectId, ref: 'Book', required: true},
   expectedReturnDate: {type: Date, required: false},
   reminderSent: {type: Boolean, required: false},
-  status: {type: String, required: false}
+  status: {type: String, required: false, validate: [validator.isLength(0, 20000)]}
 });
 
 BookCopySchema.pre('save', async function (next: NextFunction): Promise<void> {
