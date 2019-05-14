@@ -11,17 +11,22 @@ export class BookCopy extends BaseModel {
     bookId: ObjectIdOrRef<Book>;
     expectedReturnDate: Moment;
     reminderSent?: boolean;
+    status?: string;
 
     constructor(available: boolean,
                 expectedReturnDate: Moment,
                 bookId: ObjectIdOrRef<Book>,
-                takenDate?: Moment) {
+                takenDate?: Moment,
+                status?: string) {
         super();
         this.available = available;
         this.expectedReturnDate = expectedReturnDate;
         this.bookId = bookId;
         if (takenDate) {
             this.takenDate = takenDate;
+        }
+        if (status) {
+          this.status = status;
         }
 
     }
@@ -38,7 +43,8 @@ const BookCopySchema = new Schema({
   takenDate: {type: Date, required: false},
   bookId: {type: Schema.Types.ObjectId, ref: 'Book', required: true},
   expectedReturnDate: {type: Date, required: false},
-  reminderSent: {type: Boolean, required: false}
+  reminderSent: {type: Boolean, required: false},
+  status: {type: String, required: false}
 });
 
 BookCopySchema.pre('save', async function (next: NextFunction): Promise<void> {

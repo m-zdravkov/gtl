@@ -1,3 +1,5 @@
+import { BookCopyService } from '../../../app/services/book/BookCopyService';
+
 require('../../SetupTestConfig');
 
 import {
@@ -24,6 +26,7 @@ import { create } from 'domain';
 import { DocCampus } from '../../../app/models/campus/Campus';
 import { getConnection } from '../../../app/components/database/DbConnect';
 import { UserService } from '../../../app/services/user/UserService';
+import { Types } from 'mongoose';
 
 const chaiHttp = require('chai-http');
 const expect = chai.expect;
@@ -182,4 +185,35 @@ describe('The book controller createBookCopy', () => {
     expect(res).to.have.status(200);
     expect(book.bookCopies).to.contain(copy._id.toHexString());
   });
+});
+
+describe('The book controller setBookCopyStatus', () => {
+  let bookCopy;
+  let book;
+  let status = 'some status';
+
+  beforeEach(async() => {
+    book = await createBook();
+    bookCopy = await createBookCopy(book);
+  });
+
+  it('should update status of the book copy', async() => {
+    let res = await chai.request(server)
+      .post(`/books/asd/copies/${bookCopy._id}`)
+      .send({status: status});
+
+    const savedBookCopy = await new BookCopyService(await getConnection())
+      .findByIdNotNull(bookCopy._id);
+    expect(res).to.have.status(200);
+    expect(savedBookCopy.status).to.be.equal(status);
+  });
+
+  it('should fail updating the status of a non existent book copy', async() => {
+    let res = await chai.request(server)
+      .post(`/books/asd/copies/${new Types.ObjectId()}`)
+      .send({status: status});
+    expect(res).to.have.status(400);
+    expect(res.body.msg).to.be.equal('Book copy was not found');
+  });
+
 });
