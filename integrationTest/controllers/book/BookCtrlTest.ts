@@ -198,7 +198,6 @@ describe('The book controller createBookCopy', () => {
       .get(`/books/${book.ISBN}/copies/count`)
       .send();
 
-    console.log(JSON.stringify(res.body));
     expect(res).to.have.status(200);
     expect(res.body.count).to.equal(2);
   });

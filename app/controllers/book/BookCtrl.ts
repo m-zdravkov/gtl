@@ -177,5 +177,6 @@ export async function countAvailableCopies(req: Request): Promise<any> {
     // availableCopies.count = count;
 
     // return Promise.resolve(availableCopies);
-    return bookService.countAvailableCopies(book.ISBN);
+    const res = await bookService.countAvailableCopies(book.ISBN);
+    return res[0];
 }

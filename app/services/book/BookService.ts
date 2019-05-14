@@ -7,13 +7,18 @@ export class BookService extends BaseService<LeanBook, DocBook> {
     super('Book', db);
   }
 
-  async countAvailableCopies(isbn: string): Promise<any[]> {
+  async countAvailableCopies(isbn: string): Promise<{count: number}[]> {
     return this.mongoService.getModel('Book')
       .aggregate()
       .match({
-        bookCopies: {
-          $exists: true,
-        }
+        $and: [
+          { ISBN: isbn },
+          {
+            bookCopies: {
+              $exists: true,
+            }
+          }
+        ]
       })
       .lookup({
         from: 'bookcopies',
@@ -21,12 +26,18 @@ export class BookService extends BaseService<LeanBook, DocBook> {
         foreignField: '_id',
         as: 'bookCopy'
       })
+      .unwind('bookCopy')
       .match({
         'bookCopy.available': true
       })
-      .project({
-        availableCopies: { $count: 'availableCopies' }
+      .group({
+        _id: '$bookCopy.available',
+        count: {$sum: 1}
       })
+      .project({
+        _id: 0
+      })
+
       .exec();
   }
 }
