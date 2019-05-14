@@ -162,21 +162,8 @@ export async function countAvailableCopies(req: Request): Promise<any> {
     if (!book) {
       throw ErrorHandler.handleErrDb(fName, 'Book ISBN does not exist');
     }
-
-    // const availableCopies = {count: 0};
-
-    // if (!book.bookCopies) {
-    //   return Promise.resolve(availableCopies);
-    // }
-
-    // let count = book.bookCopies.filter(k => {
-    //   k = k as BookCopy;
-    //   return k.available;
-    // }).length;
-
-    // availableCopies.count = count;
-
-    // return Promise.resolve(availableCopies);
     const res = await bookService.countAvailableCopies(book.ISBN);
+    const auditService = new AuditService(db);
+    auditService.createAudit(modelEnum.BOOK, actionEnum.FIND_COPIES, book._id);
     return res[0];
 }

@@ -182,15 +182,26 @@ describe('The book controller createBookCopy', () => {
     expect(res).to.have.status(200);
     expect(book.bookCopies).to.contain(copy._id.toHexString());
   });
+});
+
+describe('The book controller countAvailableCopies', async() => {
+  let book: DocBook;
+  let copy1: DocBookCopy;
+  let copy2: DocBookCopy;
+
+  beforeEach(async() => {
+    book = await createBook();
+    copy1 = await createBookCopy(book);
+    copy2 = await createBookCopy(book);
+  });
 
   it('should return the correct amount of available copies', async() => {
-    const copy2 = await createBookCopy(book);
     await createBookCopy(book);
     await createBookCopy(book);
 
-    copy.available = false;
+    copy1.available = false;
     copy2.available = false;
-    await copy.save();
+    await copy1.save();
     await copy2.save();
 
 
