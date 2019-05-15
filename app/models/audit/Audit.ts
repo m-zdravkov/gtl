@@ -1,6 +1,5 @@
 import { BaseModel, ObjectIdOrRef } from '../BaseModel';
 import { Connection, Document, Schema } from 'mongoose';
-import * as validator from 'mongoose-validators';
 import {
   ActionType,
   actions,
