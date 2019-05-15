@@ -52,7 +52,7 @@ describe('The book controller', () => {
     copy = await createBookCopy(book);
   });
 
-  xit('should find a single book by searching its author, title & subject', async() => {
+  it('should find a single book by searching its author, title & subject', async() => {
     // Create two 'wrong' books
     const bookWrong1: DocBook = await createBook();
     const bookWrong2: DocBook = await createBook();
@@ -68,9 +68,9 @@ describe('The book controller', () => {
     let res = await chai.request(server)
       .get(`/books/`)
       .query({
-        bookTitle: book.title,
-        bookAuthor: book.author,
-        bookSubject: book.subjectArea
+        title: book.title,
+        author: book.author,
+        subject: book.subjectArea
       })
       .set('Content-Type', 'application/json')
       .send();
