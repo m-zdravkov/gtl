@@ -82,21 +82,6 @@ class MongoService {
     return null;
   };
 
-  findOneNotNull = async <T extends Document>(
-    modelName: string, conditions: Condition, lean?: boolean, fields?: Projection,
-    options?: Options, populate?: Population, noLogging?: boolean): Promise<T> => {
-    const model = await this.findOne<T>(modelName, conditions, lean, fields, options, populate);
-    if (model === null) {
-      if (noLogging) {
-        throw  `Model ${modelName} for condition: ${JSON.stringify(conditions)} was not found.`;
-      } else {
-        ErrorHandler.handleErrDb(
-          null, `Model ${modelName} for condition: ${JSON.stringify(conditions)} was not found.`);
-      }
-    }
-    return model;
-  };
-
   find = async <T extends Document>(
     modelName: string, conditions: Condition, lean?: boolean, fields?: Projection,
     options?: Options, populate?: Population): Promise<void | T[]> => {
@@ -152,14 +137,6 @@ class MongoService {
           constants.errType.DB, 400, err);
       });
   };
-
-  save = async <T extends Document>(modelObject: any): Promise<T> => {
-    return modelObject
-      .save()
-      .catch(err => {
-        throw ErrorHandler.handleErrDb('DbService.save', 'Could not save the model.', err);
-      });
-  }
 }
 
 /**
