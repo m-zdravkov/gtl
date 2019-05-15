@@ -188,6 +188,44 @@ describe('The book controller createBookCopy', () => {
   });
 });
 
+describe('The book controller countAvailableCopies', async() => {
+  let book: DocBook;
+  let copy1: DocBookCopy;
+  let copy2: DocBookCopy;
+
+  beforeEach(async() => {
+    book = await createBook();
+    copy1 = await createBookCopy(book);
+    copy2 = await createBookCopy(book);
+  });
+
+  it('should return the correct amount of available copies', async() => {
+    await createBookCopy(book);
+    await createBookCopy(book);
+
+    copy1.available = false;
+    copy2.available = false;
+    await copy1.save();
+    await copy2.save();
+
+
+    let res = await chai.request(server)
+      .get(`/books/${book.ISBN}/copies/count`)
+      .send();
+
+    expect(res).to.have.status(200);
+    expect(res.body.count).to.equal(2);
+  });
+
+  it('should return an error if the book does not exist', async() => {
+    let res = await chai.request(server)
+      .get(`/books/${book.ISBN + 'fail'}/copies/count`)
+      .send();
+
+    expect(res).to.have.status(400);
+    expect(res.body.msg).to.equal('Book ISBN does not exist');
+  });
+});
 describe('The book controller setBookCopyStatus', () => {
   let bookCopy;
   let book;
@@ -204,7 +242,7 @@ describe('The book controller setBookCopyStatus', () => {
       .send({status: status});
 
     const savedBookCopy = await new BookCopyService(await getConnection())
-      .findByIdNotNull(bookCopy._id);
+      .findById(bookCopy._id);
     expect(res).to.have.status(200);
     expect(savedBookCopy.status).to.be.equal(status);
   });
