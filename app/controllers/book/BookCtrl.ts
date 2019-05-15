@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import { BookService } from '../../services/book/BookService';
 import { getConnection } from '../../components/database/DbConnect';
-import { DocBook } from '../../models/book/Book';
+import { DocBook, LeanBook } from '../../models/book/Book';
 import { ErrorHandler } from '../../components/ErrorHandler';
 import { DocBookCopy, BookCopy, LeanBookCopy } from '../../models/book/BookCopy';
 import { UserService } from '../../services/user/UserService';
@@ -187,4 +187,19 @@ export async function setBookCopyStatus(req: Request): Promise<DocBookCopy> {
   auditService.createAudit(modelEnum.BOOK_COPY, actionEnum.UPDATE, bookCopy._id,
     JSON.parse(JSON.stringify(savedCopy)), oldBookCopy);
   return bookCopy;
+}
+
+export async function countAllBookCopies(req: Request): Promise<any> {
+  const fName = 'BookCtrl.countAllBookCopies';
+  const db = await getConnection();
+  const bookService = new BookService(db);
+  const auditService = new AuditService(db);
+
+  const book: LeanBook = await bookService.findOne({ISBN: req.params.isbn});
+  if (!book) {
+    throw ErrorHandler.handleErrDb(fName, 'Book ISBN does not exist');
+  }
+
+  auditService.createAudit(modelEnum.BOOK, actionEnum.FIND_COPIES, book._id);
+  return { count: book.bookCopies.length };
 }

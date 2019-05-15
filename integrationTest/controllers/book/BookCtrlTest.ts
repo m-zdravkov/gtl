@@ -52,7 +52,7 @@ describe('The book controller', () => {
     copy = await createBookCopy(book);
   });
 
-  xit('should find a single book by searching its author, title & subject', async() => {
+  it('should find a single book by searching its author, title & subject', async() => {
     // Create two 'wrong' books
     const bookWrong1: DocBook = await createBook();
     const bookWrong2: DocBook = await createBook();
@@ -68,9 +68,9 @@ describe('The book controller', () => {
     let res = await chai.request(server)
       .get(`/books/`)
       .query({
-        bookTitle: book.title,
-        bookAuthor: book.author,
-        bookSubject: book.subjectArea
+        title: book.title,
+        author: book.author,
+        subject: book.subjectArea
       })
       .set('Content-Type', 'application/json')
       .send();
@@ -263,4 +263,31 @@ describe('The book controller setBookCopyStatus', () => {
     expect(res).to.have.status(400);
   });
 
+});
+describe('The book controller countAllBookCopies', async() => {
+  let book;
+
+  beforeEach(async() => {
+    book = await createBook();
+  });
+
+  it('should count all book copies', async() => {
+    await createBookCopy(book);
+    await createBookCopy(book);
+    let res = await chai.request(server)
+      .get(`/books/${book.ISBN}/copies/countall`)
+      .send();
+
+    expect(res).to.have.status(200);
+    expect(res.body.count).to.equal(2);
+  });
+
+  it('should return an error if the book does not exist', async() => {
+    let res = await chai.request(server)
+      .get(`/books/${book.ISBN + 'fail'}/copies/countall`)
+      .send();
+
+    expect(res).to.have.status(400);
+    expect(res.body.msg).to.equal('Book ISBN does not exist');
+  });
 });
