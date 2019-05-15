@@ -3,7 +3,7 @@ import { BookService } from '../../services/book/BookService';
 import { getConnection } from '../../components/database/DbConnect';
 import { DocBook } from '../../models/book/Book';
 import { ErrorHandler } from '../../components/ErrorHandler';
-import { DocBookCopy, BookCopy } from '../../models/book/BookCopy';
+import { DocBookCopy, BookCopy, LeanBookCopy } from '../../models/book/BookCopy';
 import { UserService } from '../../services/user/UserService';
 import { DocUser } from '../../models/user/User';
 import * as moment from 'moment';
@@ -153,6 +153,23 @@ export async function createBookCopy(req: Request): Promise<DocBookCopy> {
     return savedObject;
 }
 
+export async function countAvailableCopies(req: Request): Promise<any> {
+    const fName = 'BookCtrl.countAvailableCopies';
+    const db = await getConnection();
+    const bookService = new BookService(db);
+
+    const book: DocBook = await bookService.findOne({ISBN: req.params.isbn}, undefined, {
+      path: 'bookCopies',
+      model: 'BookCopy'
+    });
+    if (!book) {
+      throw ErrorHandler.handleErrDb(fName, 'Book ISBN does not exist');
+    }
+    const res = await bookService.countAvailableCopies(book.ISBN);
+    const auditService = new AuditService(db);
+    auditService.createAudit(modelEnum.BOOK, actionEnum.FIND_COPIES, book._id);
+    return res[0];
+}
 export async function setBookCopyStatus(req: Request): Promise<DocBookCopy> {
   const fName = 'BookCtrl.setBookCopyStatus';
   const db = await getConnection();

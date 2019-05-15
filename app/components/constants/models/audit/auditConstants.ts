@@ -19,5 +19,6 @@ export enum actionEnum {
   UPDATE = 'UPDATE',
   DELETE = 'DELETE',
   RETURN_BOOK = 'RETURN_BOOK',
+  FIND_COPIES = 'FIND_COPIES',
   LOAN_BOOK = 'LOAN_BOOK'
 }

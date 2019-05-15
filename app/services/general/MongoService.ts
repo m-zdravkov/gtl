@@ -159,6 +159,17 @@ class MongoService {
       .catch(err => {
         throw ErrorHandler.handleErrDb('DbService.save', 'Could not save the model.', err);
       });
+  };
+
+  count = async (modelName: string, conditions: object): Promise<number> => {
+    return await this.db.model(modelName)
+      .count(conditions)
+      .exec()
+      .catch(err => {
+        throw ErrorHandler.handleErrDb(
+          'MongoService.count',
+          `Could not count the model ${modelName}`, err);
+      });
   }
 }
 
