@@ -195,5 +195,6 @@ export async function countAllBookCopies(req: Request): Promise<any> {
   const bookService = new BookService(db);
 
   const book: LeanBook = await bookService.findOneLean({ISBN: req.params.isbn});
+  auditService.createAudit(modelEnum.BOOK, actionEnum.FIND_COPIES, book._id);
   return { count: book.bookCopies.length };
 }
