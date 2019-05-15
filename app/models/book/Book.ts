@@ -55,7 +55,7 @@ const BookSchema = new Schema({
       validate: { validator: validatePublishYear, msg: 'The book is not yet published' }
     },
     subjectArea: {type: String, required: true, validate: validator.isLength(0, 255)},
-    lendingRestrictions: {type: [String], required: false, validate: validator.isLength(1, 255)},
+    lendingRestrictions: {type: [String], required: false, validate: validator.isLength(0, 255)},
     description: {type: String, required: false, validate: validator.isLength(0, 10000)}
 });
 

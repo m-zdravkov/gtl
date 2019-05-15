@@ -5,7 +5,8 @@ import {
   loanBook,
   getBook,
   createBookCopy,
-  setBookCopyStatus
+  setBookCopyStatus,
+  countAllBookCopies
 } from '../../controllers/book/BookCtrl';
 import {Request, Response, Router} from 'express';
 
@@ -36,6 +37,11 @@ module.exports = (router: Router) => {
         '/books/:isbn/copies',
         (req: Request, res: Response) => {
             return defaultCtrlCall(res, createBookCopy, req);
+        });
+    router.get(
+        '/books/:isbn/copies/countall',
+        (req: Request, res: Response) => {
+            return defaultCtrlCall(res, countAllBookCopies, req);
         });
     router.put(
         '/books/:isbn/copies/:copyId',

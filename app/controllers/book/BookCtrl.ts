@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import { BookService } from '../../services/book/BookService';
 import { getConnection } from '../../components/database/DbConnect';
-import { DocBook } from '../../models/book/Book';
+import { DocBook, LeanBook } from '../../models/book/Book';
 import { ErrorHandler } from '../../components/ErrorHandler';
 import { DocBookCopy, BookCopy } from '../../models/book/BookCopy';
 import { UserService } from '../../services/user/UserService';
@@ -170,4 +170,14 @@ export async function setBookCopyStatus(req: Request): Promise<DocBookCopy> {
   auditService.createAudit(modelEnum.BOOK_COPY, actionEnum.UPDATE, bookCopy._id,
     JSON.parse(JSON.stringify(savedCopy)), oldBookCopy);
   return bookCopy;
+}
+
+export async function countAllBookCopies(req: Request): Promise<any> {
+  const fName = 'BookCtrl.getBookCopies';
+  const db = await getConnection();
+  const bookCopyService = new BookCopyService(db);
+  const bookService = new BookService(db);
+
+  const book: LeanBook = await bookService.findOneLean({ISBN: req.params.isbn});
+  return {'copies': book.bookCopies.length};
 }

@@ -200,7 +200,7 @@ describe('The book controller setBookCopyStatus', () => {
 
   it('should update status of the book copy', async() => {
     let res = await chai.request(server)
-      .post(`/books/asd/copies/${bookCopy._id}`)
+      .put(`/books/asd/copies/${bookCopy._id}`)
       .send({status: status});
 
     const savedBookCopy = await new BookCopyService(await getConnection())
@@ -211,7 +211,7 @@ describe('The book controller setBookCopyStatus', () => {
 
   it('should fail updating the status of a non existent book copy', async() => {
     let res = await chai.request(server)
-      .post(`/books/asd/copies/${new Types.ObjectId()}`)
+      .put(`/books/asd/copies/${new Types.ObjectId()}`)
       .send({status: status});
     expect(res).to.have.status(400);
     expect(res.body.msg).to.be.equal('Book copy was not found');
@@ -220,9 +220,27 @@ describe('The book controller setBookCopyStatus', () => {
   it('should fail for exceeding maximum characters for status', async() => {
     status = generateRandomString(20001);
     let res = await chai.request(server)
-      .post(`/books/asd/copies/${bookCopy._id}`)
+      .put(`/books/asd/copies/${bookCopy._id}`)
       .send({status: status});
     expect(res).to.have.status(400);
   });
 
+});
+describe('The book controller countAllBookCopies', async() => {
+  let book;
+
+  beforeEach(async() => {
+    book = createBook();
+  });
+
+  it('should count all book copies', async() => {
+    await createBookCopy(book);
+    await createBookCopy(book);
+    let res = await chai.request(server)
+      .get(`/books/:isbn/copies/countall`)
+      .send();
+
+    expect(res).to.have.status(200);
+    expect(res.body.count).to.equal(2);
+  });
 });
