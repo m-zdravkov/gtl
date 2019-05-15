@@ -275,7 +275,7 @@ describe('The book controller countAllBookCopies', async() => {
     await createBookCopy(book);
     await createBookCopy(book);
     let res = await chai.request(server)
-      .get(`/books/:isbn/copies/countall`)
+      .get(`/books/${book.ISBN}/copies/countall`)
       .send();
 
     expect(res).to.have.status(200);
