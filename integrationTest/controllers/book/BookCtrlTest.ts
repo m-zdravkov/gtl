@@ -281,4 +281,13 @@ describe('The book controller countAllBookCopies', async() => {
     expect(res).to.have.status(200);
     expect(res.body.count).to.equal(2);
   });
+
+  it('should return an error if the book does not exist', async() => {
+    let res = await chai.request(server)
+      .get(`/books/${book.ISBN + 'fail'}/copies/countall`)
+      .send();
+
+    expect(res).to.have.status(400);
+    expect(res.body.msg).to.equal('Book ISBN does not exist');
+  });
 });
