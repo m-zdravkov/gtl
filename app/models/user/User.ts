@@ -19,7 +19,8 @@ export class User extends BaseModel {
 
   constructor(userType: UserType, ssn: string,
               campus: ObjectIdOrRef<Campus>, homeAddress: string, mailingAddress: string,
-              phoneNumbers: string[], memberCard: MemberCard, takenBooks?: ObjectIdOrRef<BookCopy>[]) {
+              phoneNumbers: string[], memberCard: MemberCard,
+              takenBooks?: ObjectIdOrRef<BookCopy>[]) {
     super();
     this.userType = userType;
     this.ssn = ssn;
@@ -45,9 +46,10 @@ export const UserSchema = new Schema({
     takenBooks: [{type: Schema.Types.ObjectId, ref: 'BookCopy', required: false}],
     ssn: {type: String, required: true, unique: true, validate: [validator.isLength(10, 10)]},
     campus: {type: Schema.Types.ObjectId, ref: 'Campus', required: false},
-    homeAddress: {type: String, required: true},
-    mailingAddress: {type: String, required: true, validate: validator.isEmail},
-    phoneNumbers: {type: [String], required: true},
+    homeAddress: {type: String, required: true, validate: validator.isLength(1, 255)},
+    mailingAddress: {type: String, required: true, validate: [validator.isEmail,
+            validator.isLength(4, 255)]},
+    phoneNumbers: {type: [String], required: true, validate: validator.isLength(0, 50)},
     memberCard: {type: MemberCardSchema, required: true}
 });
 

@@ -1,11 +1,12 @@
 import {defaultCtrlCall} from './UtilResources';
 import {
-    createBook,
-    getBooks,
-    loanBook,
-    getBook,
-    createBookCopy,
-    countAvailableCopies
+  createBook,
+  getBooks,
+  loanBook,
+  getBook,
+  createBookCopy,
+  countAvailableCopies,
+  setBookCopyStatus
 } from '../../controllers/book/BookCtrl';
 import {Request, Response, Router} from 'express';
 
@@ -41,5 +42,10 @@ module.exports = (router: Router) => {
         '/books/:isbn/copies/count',
         (req: Request, res: Response) => {
             return defaultCtrlCall(res, countAvailableCopies, req);
+        });
+    router.put(
+        '/books/:isbn/copies/:copyId',
+        (req: Request, res: Response) => {
+            return defaultCtrlCall(res, setBookCopyStatus, req);
         });
 };
