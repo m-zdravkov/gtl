@@ -137,6 +137,17 @@ class MongoService {
           constants.errType.DB, 400, err);
       });
   };
+
+  count = async (modelName: string, conditions: object): Promise<number> => {
+    return await this.db.model(modelName)
+      .count(conditions)
+      .exec()
+      .catch(err => {
+        throw ErrorHandler.handleErrDb(
+          'MongoService.count',
+          `Could not count the model ${modelName}`, err);
+      });
+  }
 }
 
 /**
