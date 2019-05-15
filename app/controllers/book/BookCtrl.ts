@@ -195,15 +195,11 @@ export async function countAllBookCopies(req: Request): Promise<any> {
   const bookService = new BookService(db);
   const auditService = new AuditService(db);
 
-  const book: DocBook = await bookService.findOne({ISBN: req.params.isbn}, undefined, {
-    path: 'bookCopies',
-    model: 'BookCopy'
-  });
+  const book: LeanBook = await bookService.findOne({ISBN: req.params.isbn});
   if (!book) {
     throw ErrorHandler.handleErrDb(fName, 'Book ISBN does not exist');
   }
 
-  const book: LeanBook = await bookService.findOneLean({ISBN: req.params.isbn});
   auditService.createAudit(modelEnum.BOOK, actionEnum.FIND_COPIES, book._id);
   return { count: book.bookCopies.length };
 }
