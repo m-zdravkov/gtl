@@ -190,11 +190,10 @@ export async function setBookCopyStatus(req: Request): Promise<DocBookCopy> {
 }
 
 export async function countAllBookCopies(req: Request): Promise<any> {
-  const fName = 'BookCtrl.getBookCopies';
+  const fName = 'BookCtrl.countAllBookCopies';
   const db = await getConnection();
-  const bookCopyService = new BookCopyService(db);
   const bookService = new BookService(db);
 
   const book: LeanBook = await bookService.findOneLean({ISBN: req.params.isbn});
-  return {'copies': book.bookCopies.length};
+  return { count: book.bookCopies.length };
 }

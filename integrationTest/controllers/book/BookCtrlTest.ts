@@ -268,7 +268,7 @@ describe('The book controller countAllBookCopies', async() => {
   let book;
 
   beforeEach(async() => {
-    book = createBook();
+    book = await createBook();
   });
 
   it('should count all book copies', async() => {
