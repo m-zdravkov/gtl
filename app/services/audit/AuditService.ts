@@ -8,7 +8,7 @@ import { ObjectId } from '../../models/BaseModel';
 export class AuditService extends BaseService<LeanAudit, DocAudit> {
 
   async createAudit(model: modelEnum, action: actionEnum, modelId?: ObjectId, newObject?, oldObject?,
-                     librarianId?: ObjectId) {
+                     librarianId?: ObjectId): Promise<DocAudit> {
     const audit = new Audit();
 
     if (librarianId) {
@@ -24,10 +24,62 @@ export class AuditService extends BaseService<LeanAudit, DocAudit> {
     if (newObject) {
       audit.newObject = newObject;
     }
-    await this.create(audit).save()
+    return this.create(audit).save();
   }
 
   constructor(db: Connection) {
     super('Audit', db);
+  }
+
+  async getAverageLoanTime(): Promise<{avgLoanTimeDays: number}[]> {
+    return this.mongoService.getModel('Audit')
+      .aggregate()
+      .match({
+        $and: [
+          { action: actionEnum.RETURN_BOOK },
+          { model: modelEnum.BOOK_COPY },
+          {
+            'newObject.takenDate': { $exists: true }
+          }
+        ]
+      })
+      .project({
+        createTime: 1,
+        newObject: 1,
+        loanTimeMs: {
+          $subtract: [
+            '$createTime',
+            '$newObject.takenDate'
+          ]
+        }
+      })
+      .project({
+        loanTimeMs: 1,
+        loanTimeDays: {
+          $floor: {
+            $divide: [
+              '$loanTimeMs',
+              1000 * 60 * 60 * 24
+            ]
+          }
+        }
+      })
+      .group({
+        _id: 0,
+        returnedBooks: { $sum: 1 },
+        totalTime: { $sum: '$loanTimeDays' }
+      })
+      .project({
+        _id: 0,
+        returnedBooks: 1,
+        totalTime: 1,
+        avgLoanTimeDays: {
+          $divide: [
+            '$totalTime',
+            '$returnedBooks'
+          ]
+        }
+      })
+      .exec();
   }
 }

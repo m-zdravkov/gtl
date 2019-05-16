@@ -1,4 +1,5 @@
 import { sendNotifications } from './WebjobResources';
+import { getAverageLoanTime } from './WebjobResources';
 
 const appPackage = require('../../../package.json');
 import { constants } from '../../components/constants';
@@ -27,5 +28,6 @@ export function initializeResources(app: Application, router: Router): void {
   require('./BookResources')(router);
   require('./WishlistResources')(router);
   userHandler(router);
-  sendNotifications(router)
+  sendNotifications(router);
+  getAverageLoanTime(router);
 }

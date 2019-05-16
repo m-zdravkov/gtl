@@ -4,7 +4,7 @@ import { getConnection } from '../../components/database/DbConnect';
 import { DocUser } from '../../models/user/User';
 import { ErrorHandler } from '../../components/ErrorHandler';
 import { BookCopyService } from '../../services/book/BookCopyService';
-import { DocBookCopy } from '../../models/book/BookCopy';
+import { DocBookCopy, LeanBookCopy } from '../../models/book/BookCopy';
 import { AuditService } from '../../services/audit/AuditService';
 import { actionEnum, modelEnum } from '../../components/constants/models/audit/auditConstants';
 
@@ -92,11 +92,17 @@ export async function returnBook(req: Request): Promise<void> {
   if (!copy) {
     throw ErrorHandler.handleErrDb(fName, 'The book copy has already been returned');
   }
-  await bookCopyService.resetCopy(copy);
+  const oldCopy = JSON.parse(JSON.stringify(copy));
+
+  const updatedCopy: DocBookCopy = await bookCopyService.resetCopy(copy);
   await user.update({ $pull: { takenBooks: copy._id } });
+
   const savedUser = await userService.findByIdLean(user._id);
   const auditService = new AuditService(db);
-  auditService.createAudit(
-    modelEnum.USER, actionEnum.RETURN_BOOK, user._id, JSON.stringify(savedUser.takenBooks),
-   oldUserTakenBooks);
+
+  auditService.createAudit(modelEnum.USER, actionEnum.RETURN_BOOK, user._id,
+                           JSON.stringify(savedUser.takenBooks), oldUserTakenBooks);
+  updatedCopy.takenDate = oldCopy.takenDate; // MUST ensure date in newObject for statistics
+  auditService.createAudit(modelEnum.BOOK_COPY, actionEnum.RETURN_BOOK, copy._id,
+                           updatedCopy, oldCopy);
 }
