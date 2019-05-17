@@ -21,7 +21,8 @@ export interface LeanCampus extends Campus {
 }
 
 export const CampusSchema = new Schema({
-  address: {type: String, required: true,  validate: [validator.isEmail()]},
+  address: {type: String, required: true,  validate: [validator.isEmail(),
+          validator.isLength(1, 255)]},
   name: {type: String, required: true, validate: [validator.isLength(1, 128)]}
 });
 

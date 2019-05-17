@@ -52,7 +52,7 @@ describe('The book controller', () => {
     copy = await createBookCopy(book);
   });
 
-  xit('should find a single book by searching its author, title & subject', async() => {
+  it('should find a single book by searching its author, title & subject', async() => {
     // Create two 'wrong' books
     const bookWrong1: DocBook = await createBook();
     const bookWrong2: DocBook = await createBook();
@@ -68,9 +68,9 @@ describe('The book controller', () => {
     let res = await chai.request(server)
       .get(`/books/`)
       .query({
-        bookTitle: book.title,
-        bookAuthor: book.author,
-        bookSubject: book.subjectArea
+        title: book.title,
+        author: book.author,
+        subject: book.subjectArea
       })
       .set('Content-Type', 'application/json')
       .send();
@@ -188,6 +188,44 @@ describe('The book controller createBookCopy', () => {
   });
 });
 
+describe('The book controller countAvailableCopies', async() => {
+  let book: DocBook;
+  let copy1: DocBookCopy;
+  let copy2: DocBookCopy;
+
+  beforeEach(async() => {
+    book = await createBook();
+    copy1 = await createBookCopy(book);
+    copy2 = await createBookCopy(book);
+  });
+
+  it('should return the correct amount of available copies', async() => {
+    await createBookCopy(book);
+    await createBookCopy(book);
+
+    copy1.available = false;
+    copy2.available = false;
+    await copy1.save();
+    await copy2.save();
+
+
+    let res = await chai.request(server)
+      .get(`/books/${book.ISBN}/copies/count`)
+      .send();
+
+    expect(res).to.have.status(200);
+    expect(res.body.count).to.equal(2);
+  });
+
+  it('should return an error if the book does not exist', async() => {
+    let res = await chai.request(server)
+      .get(`/books/${book.ISBN + 'fail'}/copies/count`)
+      .send();
+
+    expect(res).to.have.status(400);
+    expect(res.body.msg).to.equal('Book ISBN does not exist');
+  });
+});
 describe('The book controller setBookCopyStatus', () => {
   let bookCopy;
   let book;
@@ -200,18 +238,18 @@ describe('The book controller setBookCopyStatus', () => {
 
   it('should update status of the book copy', async() => {
     let res = await chai.request(server)
-      .post(`/books/asd/copies/${bookCopy._id}`)
+      .put(`/books/asd/copies/${bookCopy._id}`)
       .send({status: status});
 
     const savedBookCopy = await new BookCopyService(await getConnection())
-      .findByIdNotNull(bookCopy._id);
+      .findById(bookCopy._id);
     expect(res).to.have.status(200);
     expect(savedBookCopy.status).to.be.equal(status);
   });
 
   it('should fail updating the status of a non existent book copy', async() => {
     let res = await chai.request(server)
-      .post(`/books/asd/copies/${new Types.ObjectId()}`)
+      .put(`/books/asd/copies/${new Types.ObjectId()}`)
       .send({status: status});
     expect(res).to.have.status(400);
     expect(res.body.msg).to.be.equal('Book copy was not found');
@@ -220,9 +258,36 @@ describe('The book controller setBookCopyStatus', () => {
   it('should fail for exceeding maximum characters for status', async() => {
     status = generateRandomString(20001);
     let res = await chai.request(server)
-      .post(`/books/asd/copies/${bookCopy._id}`)
+      .put(`/books/asd/copies/${bookCopy._id}`)
       .send({status: status});
     expect(res).to.have.status(400);
   });
 
+});
+describe('The book controller countAllBookCopies', async() => {
+  let book;
+
+  beforeEach(async() => {
+    book = await createBook();
+  });
+
+  it('should count all book copies', async() => {
+    await createBookCopy(book);
+    await createBookCopy(book);
+    let res = await chai.request(server)
+      .get(`/books/${book.ISBN}/copies/countall`)
+      .send();
+
+    expect(res).to.have.status(200);
+    expect(res.body.count).to.equal(2);
+  });
+
+  it('should return an error if the book does not exist', async() => {
+    let res = await chai.request(server)
+      .get(`/books/${book.ISBN + 'fail'}/copies/countall`)
+      .send();
+
+    expect(res).to.have.status(400);
+    expect(res.body.msg).to.equal('Book ISBN does not exist');
+  });
 });

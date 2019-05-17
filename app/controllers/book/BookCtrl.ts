@@ -151,6 +151,23 @@ export async function createBookCopy(req: Request): Promise<DocBookCopy> {
     return savedObject;
 }
 
+export async function countAvailableCopies(req: Request): Promise<any> {
+    const fName = 'BookCtrl.countAvailableCopies';
+    const db = await getConnection();
+    const bookService = new BookService(db);
+
+    const book: DocBook = await bookService.findOne({ISBN: req.params.isbn}, undefined, {
+      path: 'bookCopies',
+      model: 'BookCopy'
+    });
+    if (!book) {
+      throw ErrorHandler.handleErrDb(fName, 'Book ISBN does not exist');
+    }
+    const res = await bookService.countAvailableCopies(book.ISBN);
+    const auditService = new AuditService(db);
+    auditService.createAudit(modelEnum.BOOK, actionEnum.FIND_COPIES, book._id);
+    return res[0];
+}
 export async function setBookCopyStatus(req: Request): Promise<DocBookCopy> {
   const fName = 'BookCtrl.setBookCopyStatus';
   const db = await getConnection();
@@ -168,4 +185,20 @@ export async function setBookCopyStatus(req: Request): Promise<DocBookCopy> {
   auditService.createAudit(modelEnum.BOOK_COPY, actionEnum.UPDATE, bookCopy._id,
                            JSON.parse(JSON.stringify(savedCopy)), oldBookCopy);
   return bookCopy;
+}
+
+
+export async function countAllBookCopies(req: Request): Promise<any> {
+  const fName = 'BookCtrl.countAllBookCopies';
+  const db = await getConnection();
+  const bookService = new BookService(db);
+  const auditService = new AuditService(db);
+
+  const book = await bookService.findOne({ISBN: req.params.isbn});
+  if (!book) {
+    throw ErrorHandler.handleErrDb(fName, 'Book ISBN does not exist');
+  }
+
+  auditService.createAudit(modelEnum.BOOK, actionEnum.FIND_COPIES, book._id);
+  return { count: book.bookCopies.length };
 }
