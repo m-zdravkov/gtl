@@ -94,7 +94,7 @@ export async function returnBook(req: Request): Promise<void> {
   }
   const oldCopy = JSON.parse(JSON.stringify(copy));
 
-  const updatedCopy: DocBookCopy = await bookCopyService.resetCopy(copy);
+  const updatedCopy = await bookCopyService.resetCopy(copy);
   await user.update({ $pull: { takenBooks: copy._id } });
 
   const savedUser = await userService.findByIdLean(user._id);
