@@ -1,5 +1,5 @@
 require('./../SetupTestConfig');
-import { createReturnBookPeriodAudit } from '../AuditGenerators';
+import { createReturnBookPeriodAudits } from '../AuditGenerators';
 import { DocAudit } from '../../app/models/audit/Audit';
 import { createBook } from '../CommonIntegrationGenerators';
 import { DocBook } from '../../app/models/book/Book';
@@ -21,8 +21,6 @@ before(async () => {
 });
 
 describe('The webjob getAverageLoanTime', () => {
-  const copies = 10;
-  const days = 10;
   let book: DocBook;
 
   beforeEach(async() => {
@@ -33,19 +31,42 @@ describe('The webjob getAverageLoanTime', () => {
 
     // Create copies and audits
     book = await createBook();
-
-    let promises: Promise<DocAudit>[] = [];
-
-    for (let i = 0; i < copies; i++) {
-      promises.push(
-        createReturnBookPeriodAudit(book, days)
-      );
-    }
-
-    await Promise.all(promises);
   });
 
-  it('should return the correct average loan time for the library', async() => {
+  it('should return the correct average loan time in days for 10-day loans', async() => {
+    const days = 10;
+    const hours = days * 24;
+    const copies = 10;
+    await createReturnBookPeriodAudits(book, hours, copies);
+
+    const res = await chai.request(server)
+      .get('/webjobs/statistics/averageloantime')
+      .send();
+
+    expect(res.status).to.equal(200);
+    expect(res.body[0].avgLoanTimeDays).to.equal(days);
+  });
+
+  it('should return the correct average loan time in HOURS for under-a-day loans', async() => {
+    const days = 0.25; // 6 hours loan
+    const hours = days * 24;
+    const copies = 12; // 6h * 12 copies = 3 days total loan
+    await createReturnBookPeriodAudits(book, hours, copies);
+
+    const res = await chai.request(server)
+      .get('/webjobs/statistics/averageloantime')
+      .send();
+
+    expect(res.status).to.equal(200);
+    expect(res.body[0].avgLoanTimeHours).to.equal(hours);
+  });
+
+  it('should return the correct average loan time in DAYS for under-a-day loans', async() => {
+    const days = 0.25; // 6 hours loan
+    const hours = days * 24;
+    const copies = 12; // 6h * 12 copies = 3 days total loan
+    await createReturnBookPeriodAudits(book, hours, copies);
+
     const res = await chai.request(server)
       .get('/webjobs/statistics/averageloantime')
       .send();

@@ -31,7 +31,7 @@ export class AuditService extends BaseService<LeanAudit, DocAudit> {
     super('Audit', db);
   }
 
-  async getAverageLoanTime(): Promise<{avgLoanTimeDays: number}[]> {
+  async getAverageLoanTime(): Promise<{avgLoanTimeDays: number, avgLoanTimeHours: number}[]> {
     return this.mongoService.getModel('Audit')
       .aggregate()
       .match({
@@ -55,11 +55,11 @@ export class AuditService extends BaseService<LeanAudit, DocAudit> {
       })
       .project({
         loanTimeMs: 1,
-        loanTimeDays: {
+        loanTimeHours: {
           $floor: {
             $divide: [
               '$loanTimeMs',
-              1000 * 60 * 60 * 24
+              1000 * 60 * 60
             ]
           }
         }
@@ -67,16 +67,27 @@ export class AuditService extends BaseService<LeanAudit, DocAudit> {
       .group({
         _id: 0,
         returnedBooks: { $sum: 1 },
-        totalTime: { $sum: '$loanTimeDays' }
+        totalTime: { $sum: '$loanTimeHours' }
       })
       .project({
         _id: 0,
         returnedBooks: 1,
         totalTime: 1,
-        avgLoanTimeDays: {
+        avgLoanTimeHours: {
           $divide: [
             '$totalTime',
             '$returnedBooks'
+          ]
+        }
+      })
+      .project({
+        returnedBooks: 1,
+        totalTime: 1,
+        avgLoanTimeHours: 1,
+        avgLoanTimeDays: {
+          $divide: [
+            '$avgLoanTimeHours',
+            24
           ]
         }
       })
