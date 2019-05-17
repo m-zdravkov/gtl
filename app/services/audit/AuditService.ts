@@ -68,18 +68,8 @@ export class AuditService extends BaseService<LeanAudit, DocAudit> {
       .group({
         _id: 0,
         returnedBooks: { $sum: 1 },
-        totalTime: { $sum: '$loanTimeHours' }
-      })
-      .project({
-        _id: 0,
-        returnedBooks: 1,
-        totalTime: 1,
-        avgLoanTimeHours: {
-          $divide: [
-            '$totalTime',
-            '$returnedBooks'
-          ]
-        }
+        totalTime: { $sum: '$loanTimeHours' },
+        avgLoanTimeHours: { $avg: '$loanTimeHours' }
       })
       .project({
         returnedBooks: 1,
