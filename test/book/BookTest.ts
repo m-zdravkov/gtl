@@ -48,8 +48,8 @@ describe('Loan book', () => {
     });
 
     it('should set takenDate to same or before now', async() => {
-        bookFind1Stub =  await stub (BookService.prototype, 'findOne').resolves(book);
-        userFind1Stub =  await stub (UserService.prototype, 'findOne').resolves(user);
+        bookFind1Stub =  stub(BookService.prototype, 'findOne').resolves(book);
+        userFind1Stub =  stub(UserService.prototype, 'findOne').resolves(user);
         const req: any = {body: {ssn: 'dummyssn'}, params: {isbn: 'dummyisbn'}};
         const loanedBook = await loanBook(req);
         const takenDate = loanedBook.takenDate;
@@ -57,8 +57,8 @@ describe('Loan book', () => {
     });
 
     it('should set returnDate to user return period after takenDate', async() => {
-        bookFind1Stub =  await stub (BookService.prototype, 'findOne').resolves(book);
-        userFind1Stub =  await stub (UserService.prototype, 'findOne').resolves(user);
+        bookFind1Stub =  stub(BookService.prototype, 'findOne').resolves(book);
+        userFind1Stub =  stub(UserService.prototype, 'findOne').resolves(user);
         const req: any = {body: {ssn: 'dummyssn'}, params: {isbn: 'dummyisbn'}};
         const loanedBook = await loanBook(req);
         const takenDate = loanedBook.takenDate;
@@ -72,8 +72,8 @@ describe('Loan book', () => {
     });
 
     it('should not be available', async() => {
-        bookFind1Stub =  await stub (BookService.prototype, 'findOne').resolves(book);
-        userFind1Stub =  await stub (UserService.prototype, 'findOne').resolves(user);
+        bookFind1Stub =  stub(BookService.prototype, 'findOne').resolves(book);
+        userFind1Stub =  stub(UserService.prototype, 'findOne').resolves(user);
         const req: any = {body: {ssn: 'dummyssn'}, params: {isbn: 'dummyisbn'}};
         const loanedBook = await loanBook(req);
         const available = loanedBook.available;
@@ -81,18 +81,18 @@ describe('Loan book', () => {
         expect(available).to.be.equal(false);
     });
 
-    it('should have the copy in user', async() => {
-        bookFind1Stub =  await stub (BookService.prototype, 'findOne').resolves(book);
-        userFind1Stub =  await stub (UserService.prototype, 'findOne').resolves(user);
+    it('should register the book copy in user', async() => {
+        bookFind1Stub =  stub(BookService.prototype, 'findOne').resolves(book);
+        userFind1Stub =  stub(UserService.prototype, 'findOne').resolves(user);
         const req: any = {body: {ssn: 'dummyssn'}, params: {isbn: 'dummyisbn'}};
         const loanedBook = await loanBook(req);
 
         expect(user.takenBooks).to.include(loanedBook);
     });
 
-    it('should not find book ISBN', async() => {
-        bookFind1Stub =  await stub (BookService.prototype, 'findOne').resolves(undefined);
-        userFind1Stub =  await stub (UserService.prototype, 'findOne').resolves(user);
+    it('should not find unexisting book ISBN', async() => {
+        bookFind1Stub =  stub(BookService.prototype, 'findOne').resolves(undefined);
+        userFind1Stub =  stub(UserService.prototype, 'findOne').resolves(user);
         const req: any = {body: {ssn: 'dummyssn'}, params: {isbn: 'dummyisbn'}};
         let msg;
         try {
@@ -105,9 +105,9 @@ describe('Loan book', () => {
 
     });
 
-    it('should not find user SSN', async() => {
-        bookFind1Stub =  await stub (BookService.prototype, 'findOne').resolves(book);
-        userFind1Stub =  await stub (UserService.prototype, 'findOne').resolves(undefined);
+    it('should not find unexisting user SSN', async() => {
+        bookFind1Stub =  stub(BookService.prototype, 'findOne').resolves(book);
+        userFind1Stub =  stub(UserService.prototype, 'findOne').resolves(undefined);
         const req: any = {body: {ssn: 'dummyssn'}, params: {isbn: 'dummyisbn'}};
         let msg;
         try {
@@ -119,10 +119,10 @@ describe('Loan book', () => {
 
     });
 
-    it('should not lend book cuz restricted', async() => {
+    it('should not lend restricted book', async() => {
         book.lendingRestrictions = ['restricted'];
-        bookFind1Stub =  await stub (BookService.prototype, 'findOne').resolves(book);
-        userFind1Stub =  await stub (UserService.prototype, 'findOne').resolves(user);
+        bookFind1Stub =  stub(BookService.prototype, 'findOne').resolves(book);
+        userFind1Stub =  stub(UserService.prototype, 'findOne').resolves(user);
         const req: any = {body: {ssn: 'dummyssn'}, params: {isbn: 'dummyisbn'}};
         let msg;
         try {
@@ -133,12 +133,12 @@ describe('Loan book', () => {
         expect(msg).to.equal('Book is restricted');
     });
 
-    it('should not lend book cuz max reached', async() => {
+    it('should not lend book when loan maximum is reached', async() => {
         for (let i = 0; i < maxLoans; i++) {
             user.takenBooks.push('' + i);
         }
-        bookFind1Stub =  await stub (BookService.prototype, 'findOne').resolves(book);
-        userFind1Stub =  await stub (UserService.prototype, 'findOne').resolves(user);
+        bookFind1Stub =  stub(BookService.prototype, 'findOne').resolves(book);
+        userFind1Stub =  stub(UserService.prototype, 'findOne').resolves(user);
         const req: any = {body: {ssn: 'dummyssn'}, params: {isbn: 'dummyisbn'}};
         let msg;
         try {
@@ -149,9 +149,9 @@ describe('Loan book', () => {
         expect(msg).to.equal(`User can not loan more than ${maxLoans} books`);
     });
 
-    it('should not lend book cuz no copies', async() => {
-        bookFind1Stub =  await stub (BookService.prototype, 'findOne').resolves(book);
-        userFind1Stub =  await stub (UserService.prototype, 'findOne').resolves(user);
+    it('should not lend book when there are no available copies', async() => {
+        userFind1Stub =  stub(UserService.prototype, 'findOne').resolves(user);
+        bookFind1Stub =  stub(BookService.prototype, 'findOne').resolves(book);
         copy.available = false;
         book.bookCopies = [copy];
         const req: any = {body: {ssn: 'dummyssn'}, params: {isbn: 'dummyisbn'}};
