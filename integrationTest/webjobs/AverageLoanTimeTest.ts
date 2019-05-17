@@ -74,4 +74,19 @@ describe('The webjob getAverageLoanTime', () => {
     expect(res.status).to.equal(200);
     expect(res.body[0].avgLoanTimeDays).to.equal(days);
   });
+
+  it('should return the correct average loan time for various loan periods', async() => {
+    await createReturnBookPeriodAudits(book, 8, 1);
+    await createReturnBookPeriodAudits(book, 12, 1);
+    await createReturnBookPeriodAudits(book, 36, 1);
+    await createReturnBookPeriodAudits(book, 40, 1);
+
+    const res = await chai.request(server)
+      .get('/webjobs/statistics/averageloantime')
+      .send();
+
+    expect(res.status).to.equal(200);
+    expect(res.body[0].avgLoanTimeDays).to.equal(1);
+  });
+
 });
