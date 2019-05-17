@@ -10,19 +10,13 @@ import {
 } from '../../CommonIntegrationGenerators';
 import {server} from '../../../server';
 import * as chai from 'chai';
-import {stub} from 'sinon';
-import * as moment from 'moment';
-import { createTracing } from 'trace_events';
 import {
   userTypesEnum,
   maxLoans
 } from '../../../app/components/constants/models/user/userConstants';
 import { DocBook } from '../../../app/models/book/Book';
 import { DocBookCopy, BookCopy } from '../../../app/models/book/BookCopy';
-import { fail } from 'assert';
-import { ErrorHandler } from '../../../app/components/ErrorHandler';
 import { DocUser } from '../../../app/models/user/User';
-import { create } from 'domain';
 import { DocCampus } from '../../../app/models/campus/Campus';
 import { getConnection } from '../../../app/components/database/DbConnect';
 import { UserService } from '../../../app/services/user/UserService';

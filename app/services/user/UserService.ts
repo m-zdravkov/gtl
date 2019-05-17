@@ -6,7 +6,8 @@ import {
   userGracePeriodDays,
   userTypesEnum
 } from '../../components/constants/models/user/userConstants';
-import { notificationConstats } from '../../components/constants/notifications/notificationConstants';
+import { notificationConstats } from
+        '../../components/constants/notifications/notificationConstants';
 import { sendMail } from '../../components/helpers/Mail';
 import { DocCampus } from '../../models/campus/Campus';
 import { ErrorHandler } from '../../components/ErrorHandler';
@@ -26,9 +27,9 @@ export class UserService extends BaseService<LeanUser, DocUser> {
     return this.find({
       $and: [
         {'memberCard.isNotificationSent': false},
-        {'memberCard.notificationSendoutDate': {$lt: moment().toDate()}},
+        {'memberCard.notificationSendoutDate': {$lt: moment().toDate()}}
       ]
-    })
+    });
   }
 
   /**
@@ -42,7 +43,8 @@ export class UserService extends BaseService<LeanUser, DocUser> {
       const sendOutDate = moment(user.memberCard.notificationSendoutDate);
       const emailContent = notificationConstats.email.MEMBER_CARD_NEAR_EXPIRATION.content
         .replace('<daysUntilExpiration>', expirationDate.diff(sendOutDate, 'days').toString());
-      promises.push(sendMail(user.mailingAddress, emailContent, notificationConstats.email.MEMBER_CARD_NEAR_EXPIRATION.subject));
+      promises.push(sendMail(user.mailingAddress, emailContent,
+                             notificationConstats.email.MEMBER_CARD_NEAR_EXPIRATION.subject));
       user.memberCard.notificationSendoutDate = moment();
       user.memberCard.isNotificationSent = true;
       promises.push(user.save());
@@ -70,20 +72,24 @@ export class UserService extends BaseService<LeanUser, DocUser> {
           .replace('<ISBN>', user.book.ISBN);
         switch (user.userType) {
           case userTypesEnum.PROFESSOR:
-            promises.push(sendMail((user.campus as DocCampus).address, content, notificationConstats.email.BOOK_OVERDUE[ user.userType ].subject));
+            promises.push(sendMail((user.campus as DocCampus).address, content,
+                                   notificationConstats.email.BOOK_OVERDUE[ user.userType ].
+                                       subject));
             break;
           case userTypesEnum.NORMAL_USER:
-            promises.push(sendMail(user.mailingAddress, content, notificationConstats.email.BOOK_OVERDUE[ user.userType ].subject));
+            promises.push(sendMail(user.mailingAddress, content,
+                                   notificationConstats.email.BOOK_OVERDUE[ user.userType ].
+                                       subject));
             break;
           default:
             throw ErrorHandler.handleErrValidation(fName, 'User type does not exist');
         }
-        bookCopyIdsReminderSent.push(user.takenBook._id)
+        bookCopyIdsReminderSent.push(user.takenBook._id);
       }
     });
     promises.push(
       bookCopyService.updateMany({ _id: { $in: bookCopyIdsReminderSent }},
-        { $set: { reminderSent: true } }, {multi: true} ));
+                                 { $set: { reminderSent: true } }, {multi: true} ));
     await Promise.all(promises);
   }
 
@@ -138,7 +144,7 @@ export class UserService extends BaseService<LeanUser, DocUser> {
       .project({
         user: '$$ROOT'
       })
-      .exec()
+      .exec();
   }
 }
 

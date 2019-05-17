@@ -56,6 +56,6 @@ export async function createBookCopy(book: DocBook): Promise<DocBookCopy> {
 export function createMemberCard(): MemberCard {
   return new MemberCard(
     moment().add(2, 'years'),
-    moment().add(2,'years').subtract(2, 'weeks'),
+    moment().add(2, 'years').subtract(2, 'weeks'),
     false);
 }
