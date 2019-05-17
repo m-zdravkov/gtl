@@ -7,8 +7,8 @@ import { ObjectId } from '../../models/BaseModel';
 
 export class AuditService extends BaseService<LeanAudit, DocAudit> {
 
-  async createAudit(model: modelEnum, action: actionEnum, modelId?: ObjectId, newObject?, oldObject?,
-                     librarianId?: ObjectId) {
+  async createAudit(model: modelEnum, action: actionEnum, modelId?: ObjectId, newObject?: Object,
+                    oldObject?: Object, librarianId?: ObjectId): Promise<void> {
     const audit = new Audit();
 
     if (librarianId) {
@@ -24,7 +24,7 @@ export class AuditService extends BaseService<LeanAudit, DocAudit> {
     if (newObject) {
       audit.newObject = newObject;
     }
-    await this.create(audit).save()
+    await this.create(audit).save();
   }
 
   constructor(db: Connection) {

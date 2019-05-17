@@ -16,10 +16,10 @@ export class User extends BaseModel {
     phoneNumbers: string[];
     memberCard: MemberCard;
 
-
   constructor(userType: UserType, ssn: string,
               campus: ObjectIdOrRef<Campus>, homeAddress: string, mailingAddress: string,
-              phoneNumbers: string[], memberCard: MemberCard, takenBooks?: ObjectIdOrRef<BookCopy>[]) {
+              phoneNumbers: string[], memberCard: MemberCard,
+              takenBooks?: ObjectIdOrRef<BookCopy>[]) {
     super();
     this.userType = userType;
     this.ssn = ssn;
