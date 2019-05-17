@@ -42,7 +42,8 @@ describe('bookNotifications webjob', () => {
     bookCopyTwo = await createBookCopy(book);
     user = await createUserPromise;
     sendEmailStub = stub(Mailer, 'sendMail').resolves();
-    stubMemberCardNotifications = stub (notificationCtrl, 'sendMembershipCardsNotifications').resolves();
+    stubMemberCardNotifications = stub (notificationCtrl,
+                                        'sendMembershipCardsNotifications').resolves();
   });
 
   afterEach(() => {
