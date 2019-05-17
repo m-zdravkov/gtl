@@ -12,6 +12,7 @@ import { fail } from 'assert';
 import { getMongoService } from '../../app/services/general/MongoService';
 import { getConnection } from '../../app/components/database/DbConnect';
 import { actionEnum, modelEnum } from '../../app/components/constants/models/audit/auditConstants';
+import { AuditService } from '../../app/services/audit/AuditService';
 
 before(async () => {
   while (!global.masterDbReady) {
@@ -27,9 +28,8 @@ describe('The webjob getAverageLoanTime', () => {
   beforeEach(async() => {
     // Delete all previous RETURN_BOOK audits
     const db = await getConnection();
-    const mongo = getMongoService(db);
-    const audits = mongo.getModel('Audit');
-    audits.remove({});
+    const auditService = new AuditService(db);
+    await auditService.remove({});
 
     // Create copies and audits
     book = await createBook();
@@ -51,6 +51,6 @@ describe('The webjob getAverageLoanTime', () => {
       .send();
 
     expect(res.status).to.equal(200);
-    expect(res.body[0].avgLoanTimeDays).to.equal(10);
+    expect(res.body[0].avgLoanTimeDays).to.equal(days);
   });
 });
