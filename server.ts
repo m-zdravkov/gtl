@@ -34,6 +34,10 @@ if (process.argv) {
       new Logger().logMsg('-------- BPM API server will run in test mode --------');
       setIntegrationTestEnv();
     }
+
+    if (arg === '--seed-database'){
+      require('./app/components/database/Seeder');
+    }
   });
 }
 

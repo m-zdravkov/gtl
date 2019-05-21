@@ -27,7 +27,7 @@ export const config = {
     production: false
   },
   databaseName: process.env.dbName || 'masterDb',
-  deleteDevelopmentDb: false,
+  deleteDevelopmentDb: true,
   smtp: {
     auth: {
       user: process.env.SMTPUser,
