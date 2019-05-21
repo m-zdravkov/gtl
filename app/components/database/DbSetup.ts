@@ -43,7 +43,8 @@ async function initializeMongodInstance(
       process.env.mongod, [
         '--dbpath', dbPath,
         '--port', dbPort,
-        '--logpath', logPath
+        '--logpath', logPath,
+        '--auth'
       ],
       options);
     await waitUntilUsed(dbPort, 500, 15000);

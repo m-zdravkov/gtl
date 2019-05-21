@@ -18,7 +18,7 @@ export async function getConnection(): Promise<Connection> {
   }
   const mode = Object.keys(config.modes).find(iMode => config.modes[ iMode ] === true);
   let databaseUri = config.database[ mode ].uri;
-  let connectionString = 'mongodb://' + databaseUri + '/' + config.databaseName;
+  let connectionString = 'mongodb://Admin:Admin@' + databaseUri + '/' + config.databaseName + '?authSource=admin';
 
   new Logger().logMsg('****** CREATING MONGO CONNECTION to ' + connectionString + '******');
   let dbObject = mongoose.createConnection();
