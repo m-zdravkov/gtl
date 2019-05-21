@@ -33,25 +33,12 @@ export async function getBooks(req: Request): Promise<DocBook[]> {
     const bookTitle = req.query.title;
     const bookAuthor = req.query.author;
     const bookSubject = req.query.subjectArea;
-    const bookObject: {
-        author?: string,
-        title?: string,
-        subjectArea?: string
-    } = {};
-    if (bookTitle) {
-        bookObject.title = bookTitle;
-    }
-    if (bookAuthor) {
-        bookObject.author = bookAuthor;
-    }
-    if (bookSubject) {
-        bookObject.subjectArea = bookSubject;
-    }
+
     const db = await getConnection();
     const bookService = new BookService(db);
     const auditService = new AuditService(db);
     auditService.createAudit(modelEnum.BOOK, actionEnum.LIST);
-    return bookService.find(bookObject);
+    return bookService.searchBooks(bookTitle, bookAuthor, bookSubject);
 }
 
 export async function getBook(req: Request): Promise<DocBook> {
