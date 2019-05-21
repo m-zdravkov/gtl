@@ -3,9 +3,11 @@ import { config } from '../config';
 import * as path from 'path';
 import { check, waitUntilUsed, waitUntilFree } from 'tcp-port-used';
 import { Logger } from '../logger/Logger';
-import { getConnection } from './DbConnect';
+import { getConnection, getUserlessAdminConnection } from './DbConnect';
 
 import os = require('os');
+import { Connection } from 'mongoose';
+import { AddUserOptions, Admin, DbAddUserOptions } from 'mongodb';
 
 export async function dbSetup(): Promise<void> {
   const mode = Object.keys(config.modes).find(iMode => config.modes[ iMode ] === true);
@@ -18,7 +20,7 @@ export async function dbSetup(): Promise<void> {
   dbPath += path.normalize(config.database[ mode ].path);
   logPath += path.normalize(config.database[ mode ].logPath);
   try {
-    await stopMongodInstance(dbPath, dbPort);
+    await stopMongodInstance(dbPort);
     await deleteTestDatabaseFiles(dbPath, mode);
     await initializeMongodInstance(dbPath, dbPort, logPath);
     await initializeMasterDb(dbPort);
@@ -39,20 +41,46 @@ async function initializeMongodInstance(
       stdio: 'inherit',
       detached: true
     };
-    spawn(
-      process.env.mongod, [
-        '--dbpath', dbPath,
-        '--port', dbPort,
-        '--logpath', logPath,
-        '--auth'
-      ],
-      options);
-    await waitUntilUsed(dbPort, 500, 15000);
-    new Logger().logMsg('-------- Mongod instance initialized successfully --------');
+    if (!config.deleteDevelopmentDb && config.modes.development) {
+      spawn(
+        process.env.mongod, [
+          '--dbpath', dbPath,
+          '--port', dbPort,
+          '--logpath', logPath,
+          '--auth'
+        ],
+        options);
+      await waitUntilUsed(dbPort, 500, 15000);
+      new Logger().logMsg('-------- Mongod instance initialized successfully --------');
+    } else {
+      spawn(
+        process.env.mongod, [
+          '--dbpath', dbPath,
+          '--port', dbPort,
+          '--logpath', logPath,
+        ],
+        options);
+      await waitUntilUsed(dbPort, 500, 15000);
+      new Logger().logMsg('-------- Mongod userless instance initialized successfully --------');
+      const adminDb = await getUserlessAdminConnection();
+      await createAdminUser(adminDb);
+      await stopMongodInstance(config.database.development.port);
+      spawn(
+        process.env.mongod, [
+          '--dbpath', dbPath,
+          '--port', dbPort,
+          '--logpath', logPath,
+          '--auth'
+        ],
+        options);
+      await waitUntilUsed(dbPort, 500, 15000);
+      new Logger().logMsg('-------- Mongod instance initialized successfully --------');
+      await getConnection();
+    }
   }
 }
 
-async function stopMongodInstance(dbPath: string, dbPort: number): Promise<void> {
+async function stopMongodInstance(dbPort: number): Promise<void> {
   const portInUse = await check(dbPort, '127.0.0.1');
   if (portInUse) {
     let command;
@@ -93,4 +121,10 @@ async function initializeMasterDb(dbPort: number): Promise<void> {
   // Wait until the mongod instance is up and running
   await waitUntilUsed(dbPort, 500, 20000);
   await getConnection();
+}
+
+async function createAdminUser(adminDb: Connection) {
+  await adminDb.db.addUser('Admin', 'Admin', {
+    roles: [ { role: "userAdminAnyDatabase", db: "admin" }, "readWriteAnyDatabase" ]
+  });
 }

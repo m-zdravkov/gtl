@@ -28,6 +28,22 @@ export async function getConnection(): Promise<Connection> {
   return dbObject;
 }
 
+export async function getUserlessAdminConnection(): Promise<Connection> {
+  if (connection) {
+    return connection;
+  }
+  const mode = Object.keys(config.modes).find(iMode => config.modes[ iMode ] === true);
+  let databaseUri = config.database[ mode ].uri;
+  let connectionString = 'mongodb://' + databaseUri + '/admin';
+
+  new Logger().logMsg('****** CREATING MONGO CONNECTION to ' + connectionString + '******');
+  let dbObject = mongoose.createConnection();
+  await dbObject.openUri(connectionString);
+  requireFiles(dbObject);
+  connection = dbObject;
+  return dbObject;
+}
+
 function requireFiles(db: Connection): void {
   console.log('******! DbConnect Require Files !******');
   global.masterDbInit = false;
