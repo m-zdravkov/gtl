@@ -7,8 +7,6 @@ import { getConnection, getUserlessAdminConnection } from './DbConnect';
 
 import os = require('os');
 import { Connection } from 'mongoose';
-import { AddUserOptions, Admin, DbAddUserOptions } from 'mongodb';
-import { roles, dbAdminUser, dbAdminPassword, users } from '../DbSecurity';
 import * as fs from 'fs';
 
 export async function dbSetup(): Promise<void> {
@@ -132,8 +130,8 @@ async function initializeMasterDb(dbPort: number): Promise<void> {
 }
 
 async function createAdminUser(adminDb: Connection): Promise<void> {
-  return adminDb.db.addUser(dbAdminUser, dbAdminPassword, {
-    roles: [ { role: "userAdminAnyDatabase", db: "admin" }, "readWriteAnyDatabase" ]
+  return adminDb.db.addUser(config.dbAdminUser, config.dbAdminPassword, {
+    roles: [ { role: 'userAdminAnyDatabase', db: 'admin' }, 'readWriteAnyDatabase' ]
   });
 }
 
@@ -143,10 +141,10 @@ async function createAdminUser(adminDb: Connection): Promise<void> {
  * @param dbUri the DB address and port, as in localhost:1234
  */
 async function createUserRoles(dbUri: string): Promise<{}> {
-  return new Promise((res, rej) => {
+  return new Promise((resolve, reject) => {
 
     let script = '';
-    roles.forEach(roleObj => {
+    config.dbRoles.forEach(roleObj => {
       script += `db.createRole(${JSON.stringify(roleObj)}); `;
     });
 
@@ -154,10 +152,14 @@ async function createUserRoles(dbUri: string): Promise<{}> {
 
     fs.writeFile(fName, script, () => {
       let command = `mongo ${dbUri}/${config.databaseName} `
-        + `--authenticationDatabase admin ` // --authenticationMechanism ???
-        + `-u ${dbAdminUser} -p ${dbAdminPassword} < ${fName}`;
+        + `--authenticationDatabase admin `
+        + `-u ${config.dbAdminUser} -p ${config.dbAdminPassword} < ${fName}`;
       exec(command);
-      setTimeout( () => { fs.unlink(fName, () => {res();})}, 1000);
+      setTimeout( () => {
+        fs.unlink(fName, () => {
+          resolve();
+        })
+      }, 1000);
     });
   });
 
@@ -166,7 +168,7 @@ async function createUserRoles(dbUri: string): Promise<{}> {
 async function createUsers(db: Connection): Promise<void> {
   let promises = [];
 
-  users.forEach(user => {
+  config.dbUsers.forEach(user => {
     promises.push(db.db.addUser(user.name, user.password, user.options));
   });
 
