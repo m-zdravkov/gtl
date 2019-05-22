@@ -13,9 +13,6 @@ let connection: Connection;
  * @returns {Connection} the created Connection object
  */
 export async function getConnection(): Promise<Connection> {
-  if (connection) {
-    return connection;
-  }
   const mode = Object.keys(config.modes).find(iMode => config.modes[ iMode ] === true);
   let databaseUri = config.database[ mode ].uri;
   let connectionString = 'mongodb://Admin:Admin@' + databaseUri + '/' + config.databaseName + '?authSource=admin';

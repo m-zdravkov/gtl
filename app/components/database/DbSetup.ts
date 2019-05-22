@@ -8,6 +8,8 @@ import { getConnection, getUserlessAdminConnection } from './DbConnect';
 import os = require('os');
 import { Connection } from 'mongoose';
 import { AddUserOptions, Admin, DbAddUserOptions } from 'mongodb';
+import { roles, dbAdminUser, dbAdminPassword, users } from '../DbSecurity';
+import * as fs from 'fs';
 
 export async function dbSetup(): Promise<void> {
   const mode = Object.keys(config.modes).find(iMode => config.modes[ iMode ] === true);
@@ -16,13 +18,14 @@ export async function dbSetup(): Promise<void> {
   let dbPath = process.cwd();
   let logPath = process.cwd();
   let dbPort = config.database[ mode ].port;
+  let dbUri = config.database[ mode ].uri;
 
   dbPath += path.normalize(config.database[ mode ].path);
   logPath += path.normalize(config.database[ mode ].logPath);
   try {
     await stopMongodInstance(dbPort);
     await deleteTestDatabaseFiles(dbPath, mode);
-    await initializeMongodInstance(dbPath, dbPort, logPath);
+    await initializeMongodInstance(dbPath, dbUri, dbPort, logPath);
     await initializeMasterDb(dbPort);
   } catch (err) {
     logger.logErr('-------- Mongod instance did NOT initialize correctly --------');
@@ -33,6 +36,7 @@ export async function dbSetup(): Promise<void> {
 /*  ------------------------ Helper Functions ------------------------*/
 async function initializeMongodInstance(
   dbPath: string,
+  dbUri: string,
   dbPort: number,
   logPath: string): Promise<void> {
   const portInUse = await check(dbPort, '127.0.0.1');
@@ -75,7 +79,11 @@ async function initializeMongodInstance(
         options);
       await waitUntilUsed(dbPort, 500, 15000);
       new Logger().logMsg('-------- Mongod instance initialized successfully --------');
-      await getConnection();
+      await createUserRoles(dbUri);
+      new Logger().logMsg('-------- Mongod user roles installed successfully --------');
+      const db = await getConnection();
+      await createUsers(db);
+      new Logger().logMsg('-------- Mongod users installed successfully --------');
     }
   }
 }
@@ -123,8 +131,44 @@ async function initializeMasterDb(dbPort: number): Promise<void> {
   await getConnection();
 }
 
-async function createAdminUser(adminDb: Connection) {
-  await adminDb.db.addUser('Admin', 'Admin', {
+async function createAdminUser(adminDb: Connection): Promise<void> {
+  return adminDb.db.addUser(dbAdminUser, dbAdminPassword, {
     roles: [ { role: "userAdminAnyDatabase", db: "admin" }, "readWriteAnyDatabase" ]
   });
+}
+
+/**
+ * Creating roles can only be done through the shell.
+ * This function builds a script and passes it to mongo.
+ * @param dbUri the DB address and port, as in localhost:1234
+ */
+async function createUserRoles(dbUri: string): Promise<{}> {
+  return new Promise((res, rej) => {
+
+    let script = '';
+    roles.forEach(roleObj => {
+      script += `db.createRole(${JSON.stringify(roleObj)}); `;
+    });
+
+    const fName = 'mongoScript.js';
+
+    fs.writeFile(fName, script, () => {
+      let command = `mongo ${dbUri}/${config.databaseName} `
+        + `--authenticationDatabase admin ` // --authenticationMechanism ???
+        + `-u ${dbAdminUser} -p ${dbAdminPassword} < ${fName}`;
+      exec(command);
+      setTimeout( () => { fs.unlink(fName, () => {res();})}, 1000);
+    });
+  });
+
+}
+
+async function createUsers(db: Connection): Promise<void> {
+  let promises = [];
+
+  users.forEach(user => {
+    promises.push(db.db.addUser(user.name, user.password, user.options));
+  });
+
+  await Promise.all(promises);
 }
