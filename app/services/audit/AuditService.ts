@@ -3,7 +3,8 @@ import { BaseService } from '../BaseService';
 import { Audit, DocAudit, LeanAudit } from '../../models/audit/Audit';
 import moment = require('moment');
 import { actionEnum, modelEnum } from '../../components/constants/models/audit/auditConstants';
-import { ObjectId } from '../../models/BaseModel';
+import {ObjectId} from '../../models/BaseModel';
+import {Book} from '../../models/book/Book';
 
 export class AuditService extends BaseService<LeanAudit, DocAudit> {
 
@@ -84,4 +85,21 @@ export class AuditService extends BaseService<LeanAudit, DocAudit> {
       })
       .exec();
   }
+
+    async getMostLoanedBook(): Promise<{loanTimes: number, book: Book}> {
+        return this.mongoService.getModel('Audit')
+            .aggregate()
+            .match({
+                $and: [
+                    { action: actionEnum.LOAN_BOOK },
+                    { model: modelEnum.BOOK_COPY }
+                ]
+            })
+            .group({_id: 0,
+                bookId: '$newObject.bookId',
+                loanedTimes: { $sum: 1 }
+            })
+            .sort({loanedTimes: -1}).limit(1).populate('bookId')
+            .exec();
+    }
 }
