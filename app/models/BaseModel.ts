@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 import { ObjectID } from 'mongodb';
 
-export abstract class BaseModel {
+export abstract class BaseModel implements IBaseModel{
   _id: any;
 }
 
@@ -11,4 +11,8 @@ export type ObjectIdOrRef<T> = ObjectId | string | T;
 
 export function isObjOrRefEquals(a: ObjectIdOrRef<any>, b: ObjectIdOrRef<any>): boolean {
   return (a instanceof String) ? a === b : a.equals(b);
+}
+
+export interface IBaseModel {
+  _id: any
 }

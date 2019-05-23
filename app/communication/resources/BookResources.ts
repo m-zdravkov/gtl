@@ -7,9 +7,12 @@ import {
   createBookCopy,
   countAllBookCopies,
   countAvailableCopies,
-  setBookCopyStatus
+  setBookCopyStatus, loanBookWithDependencies
 } from '../../controllers/book/BookCtrl';
 import {Request, Response, Router} from 'express';
+import { BookService } from '../../services/book/BookService';
+import { UserService } from '../../services/user/UserService';
+import { AuditService } from '../../services/audit/AuditService';
 
 module.exports = (router: Router) => {
 
@@ -33,6 +36,15 @@ module.exports = (router: Router) => {
         '/books/:isbn/loan',
         (req: Request, res: Response) => {
             return defaultCtrlCall(res, loanBook, req);
+        });
+    router.put(
+        '/books/:isbn/loanBook',
+      (req: Request, res: Response) => {
+          const connection = global.db;
+          const bookService = new BookService(connection);
+          const userService = new UserService(connection);
+          const auditService = new AuditService(connection);
+          return defaultCtrlCall(res, loanBookWithDependencies, req, bookService, userService, auditService);
         });
     router.post(
         '/books/:isbn/copies',
