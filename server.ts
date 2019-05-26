@@ -42,7 +42,7 @@ if (process.argv) {
 }
 
 process.on('unhandledRejection', error => {
-  new Logger('unhandledRejection').logErr(error);
+  new Logger('unhandledRejection').logErr(JSON.stringify(error));
 });
 
 const app = express();

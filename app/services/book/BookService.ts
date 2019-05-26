@@ -26,7 +26,7 @@ export class BookService extends BaseService<LeanBook, DocBook> {
         foreignField: '_id',
         as: 'bookCopy'
       })
-      .unwind('bookCopy')
+      .unwind('$bookCopy')
       .match({
         'bookCopy.available': true
       })

@@ -38,8 +38,8 @@ export function createCampus(): Campus {
 
 export function createUser(userType: UserType, campusId: ObjectId): User {
     let user = new User(
-        userType, generateRandomString(10), campusId, generateRandomString(10),
-        generateRandomString(10) + '@mailinator.com', ['+45 35353535'], createMemberCard());
+        userType, generateRandomString(10), generateRandomString(10),
+        generateRandomString(10) + '@mailinator.com', ['+45 35353535'], createMemberCard(), campusId);
     user._id = new Types.ObjectId();
     user.takenBooks = [];
     user = {userType: user.userType, takenBooks: user.takenBooks, ssn: user.ssn,
