@@ -27,6 +27,7 @@ export function initializeResources(app: Application, router: Router): void {
   // Require routes related to different models
   require('./BookResources')(router);
   require('./WishlistResources')(router);
+  require('./LibrarianResources')(router);
   userHandler(router);
   sendNotifications(router);
   getAverageLoanTime(router);
