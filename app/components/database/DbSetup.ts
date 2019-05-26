@@ -59,7 +59,7 @@ async function initializeMongodInstance(
         process.env.mongod, [
           '--dbpath', dbPath,
           '--port', dbPort,
-          '--logpath', logPath,
+          '--logpath', logPath
         ],
         options);
       await waitUntilUsed(dbPort, 500, 15000);
@@ -158,8 +158,8 @@ async function createUserRoles(dbUri: string): Promise<{}> {
       setTimeout( () => {
         fs.unlink(fName, () => {
           resolve();
-        })
-      }, 1000);
+        });
+      },          1000);
     });
   });
 

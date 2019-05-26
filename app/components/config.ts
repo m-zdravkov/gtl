@@ -42,36 +42,88 @@ export const config = {
   dbRoles:
   [
     {
-      role: 'CHIEF_LIBRARIAN',
+      role: 'CHIEF',
       privileges: [],
       roles: ['dbAdmin']
     },
     {
-      role: 'LIBRARIAN_ASSISTANT',
+      role: 'ASSISTANT',
+      privileges: [
+        { resource: { db: 'masterDb', collection: 'librarians' }, actions: ['find'] },
+        { resource: { db: 'masterDb', collection: 'users' },
+            actions: ['find', 'insert', 'update', 'remove'] },
+        { resource: { db: 'masterDb', collection: 'books' }, actions: ['find'] },
+        { resource: { db: 'masterDb', collection: 'bookcopies' }, actions: ['find', 'update'] },
+        { resource: { db: 'masterDb', collection: 'audits' },
+            actions: ['find', 'insert'] },
+        { resource: { db: 'masterDb', collection: 'campuses' }, actions: ['find'] }
+      ],
+      roles: []
+    } ,
+    {
+      role: 'CHECK_OUT',
+      privileges: [
+        { resource: { db: 'masterDb', collection: 'librarians' }, actions: ['find'] },
+        { resource: { db: 'masterDb', collection: 'users' }, actions: ['find', 'update'] },
+        { resource: { db: 'masterDb', collection: 'books' }, actions: ['find'] },
+        { resource: { db: 'masterDb', collection: 'bookcopies' }, actions: ['find', 'update'] },
+        { resource: { db: 'masterDb', collection: 'audits' }, actions: ['insert'] },
+        { resource: { db: 'masterDb', collection: 'campuses' }, actions: ['find'] }
+      ],
+      roles: []
+    } ,
+    {
+      role: 'REFERENCE',
       privileges: [
         { resource: { db: 'masterDb', collection: 'librarians' }, actions: ['find'] },
         { resource: { db: 'masterDb', collection: 'users' }, actions: ['find'] },
         { resource: { db: 'masterDb', collection: 'books' }, actions: ['find'] },
         { resource: { db: 'masterDb', collection: 'bookcopies' }, actions: ['find'] },
-        { resource: { db: 'masterDb', collection: 'campuses' }, actions: ['find'] },
+        { resource: { db: 'masterDb', collection: 'campuses' }, actions: ['find'] }
       ],
       roles: []
+    } ,
+    {
+      role: 'DEPARTMENTAL_ASSOCIATE',
+      privileges: [],
+      roles: ['readWrite']
     }
   ],
   dbUsers:
   [
     {
-      name: 'CHIEF_LIBRARIAN',
+      name: 'CHIEF',
       password: '12345',
       options: {
-        roles: [ 'CHIEF_LIBRARIAN' ]
+        roles: [ 'CHIEF' ]
       }
     },
     {
-      name: 'LIBRARIAN_ASSISTANT',
+      name: 'ASSISTANT',
       password: '12345',
       options: {
-        roles: [ 'LIBRARIAN_ASSISTANT' ]
+        roles: [ 'ASSISTANT' ]
+      }
+    },
+    {
+      name: 'REFERENCE',
+      password: '12345',
+      options: {
+        roles: [ 'REFERENCE' ]
+      }
+    },
+    {
+      name: 'CHECK_OUT',
+      password: '12345',
+      options: {
+        roles: [ 'CHECK_OUT' ]
+      }
+    },
+    {
+      name: 'DEPARTMENTAL_ASSOCIATE',
+      password: '12345',
+      options: {
+        roles: [ 'DEPARTMENTAL_ASSOCIATE' ]
       }
     }
   ],
