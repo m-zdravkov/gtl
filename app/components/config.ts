@@ -84,6 +84,13 @@ export const config = {
       roles: []
     } ,
     {
+      role: 'UNAUTHORISED',
+      privileges: [
+        { resource: { db: 'masterDb', collection: 'librarians' }, actions: ['find'] }
+      ],
+      roles: []
+    } ,
+    {
       role: 'DEPARTMENTAL_ASSOCIATE',
       privileges: [],
       roles: ['readWrite']
@@ -117,6 +124,13 @@ export const config = {
       password: '12345',
       options: {
         roles: [ 'CHECK_OUT' ]
+      }
+    },
+    {
+      name: 'UNAUTHORISED',
+      password: '12345',
+      options: {
+        roles: [ 'UNAUTHORISED' ]
       }
     },
     {

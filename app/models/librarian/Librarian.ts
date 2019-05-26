@@ -22,7 +22,7 @@ export interface DocLibrarian extends Librarian, Document {
 
 export const LibrarianSchema = new Schema({
     librarianType: {type: String, required: true, 'enum': librarianTypes},
-    name: [{type: String, required: true}]
+    name: [{type: String, required: true, unique: true}]
 });
 
 export default function(db: Connection): void {

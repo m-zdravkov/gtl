@@ -54,6 +54,16 @@ async function initializeMongodInstance(
         options);
       await waitUntilUsed(dbPort, 500, 15000);
       new Logger().logMsg('-------- Mongod instance initialized successfully --------');
+    } else if (config.modes.integrationTest) {
+        spawn(
+            process.env.mongod, [
+                '--dbpath', dbPath,
+                '--port', dbPort,
+                '--logpath', logPath
+            ],
+            options);
+        await waitUntilUsed(dbPort, 500, 15000);
+        new Logger().logMsg('-------- Mongod instance initialized successfully --------');
     } else {
       spawn(
         process.env.mongod, [
@@ -151,9 +161,16 @@ async function createUserRoles(dbUri: string): Promise<{}> {
     const fName = 'mongoScript.js';
 
     fs.writeFile(fName, script, () => {
-      let command = `mongo ${dbUri}/${config.databaseName} `
-        + `--authenticationDatabase admin `
-        + `-u ${config.dbAdminUser} -p ${config.dbAdminPassword} < ${fName}`;
+      let command;
+      if (os.platform() !== 'linux') {
+        command = `%mongo% ${dbUri}/${config.databaseName} `
+            + `--authenticationDatabase admin `
+            + `-u ${config.dbAdminUser} -p ${config.dbAdminPassword} < ${fName}`;
+      } else {
+        command = `mongo ${dbUri}/${config.databaseName} `
+          + `--authenticationDatabase admin `
+          + `-u ${config.dbAdminUser} -p ${config.dbAdminPassword} < ${fName}`;
+      }
       exec(command);
       setTimeout( () => {
         fs.unlink(fName, () => {

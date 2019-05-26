@@ -25,6 +25,9 @@ export async function defaultCtrlCall(res: Response,
       err.code = 400;
     }
 
+    if (global.currCon) {
+      await global.currCon.close();
+    }
     if (isValidHttpStatusCode(err.code)) {
       res.status(err.code).send({type: err.type, msg: err.msg || err.message});
     } else {
