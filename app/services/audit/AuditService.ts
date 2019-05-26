@@ -86,7 +86,7 @@ export class AuditService extends BaseService<LeanAudit, DocAudit> {
       .exec();
   }
 
-    async getMostLoanedBook(): Promise<{loanTimes: number, book: Book}> {
+    async getMostLoanedBook(): Promise<{loanTimes: number, book: Book}[]> {
         return this.mongoService.getModel('Audit')
             .aggregate()
             .match({
