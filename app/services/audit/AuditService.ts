@@ -99,7 +99,8 @@ export class AuditService extends BaseService<LeanAudit, DocAudit> {
                 bookId: '$newObject.bookId',
                 loanedTimes: { $sum: 1 }
             })
-            .sort({loanedTimes: -1}).limit(1).populate('bookId')
+            .sort({loanedTimes: -1}).limit(1).
+            lookup({from: 'books', localField: 'bookId', foreignField: '_id', as: 'books'})
             .exec();
     }
 }
