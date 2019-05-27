@@ -11,8 +11,10 @@ export async function getAverageLoanTime(req: Request): Promise<any> {
   return loanStatistics;
 }
 
-export async function getMostLoanedBook(req: Request): Promise<{loanTimes: number, book: Book}> {
+export async function getMostLoanedBook(req: Request): Promise<{loanTimes: number, books: Book[]}> {
     const db = await getConnection();
     const auditService = new AuditService(db);
-    return auditService.getMostLoanedBook();
+    const mostLoanedBook = await auditService.getMostLoanedBook();
+    return mostLoanedBook[0];
 }
+

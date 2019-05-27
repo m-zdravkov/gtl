@@ -86,7 +86,7 @@ export class AuditService extends BaseService<LeanAudit, DocAudit> {
       .exec();
   }
 
-    async getMostLoanedBook(): Promise<{loanTimes: number, book: Book}[]> {
+    async getMostLoanedBook(): Promise<{loanTimes: number, books: Book[]}[]> {
         return this.mongoService.getModel('Audit')
             .aggregate()
             .match({
@@ -95,12 +95,11 @@ export class AuditService extends BaseService<LeanAudit, DocAudit> {
                     { model: modelEnum.BOOK_COPY }
                 ]
             })
-            .group({_id: 0,
-                bookId: '$newObject.bookId',
-                loanedTimes: { $sum: 1 }
+            .group({_id: '$newObject.bookId',
+                loanTimes: { $sum: 1 }
             })
-            .sort({loanedTimes: -1}).limit(1).
-            lookup({from: 'books', localField: 'bookId', foreignField: '_id', as: 'books'})
+            .sort({loanTimes: -1}).limit(1).
+            lookup({from: 'books', localField: '_id', foreignField: '_id', as: 'books'})
             .exec();
     }
 }
