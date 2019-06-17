@@ -16,9 +16,9 @@ export class User extends BaseModel {
     phoneNumbers: string[];
     memberCard: MemberCard;
 
-  constructor(userType: UserType, ssn: string,
-              campus: ObjectIdOrRef<Campus>, homeAddress: string, mailingAddress: string,
+  constructor(userType: UserType, ssn: string, homeAddress: string, mailingAddress: string,
               phoneNumbers: string[], memberCard: MemberCard,
+              campus?: ObjectIdOrRef<Campus>,
               takenBooks?: ObjectIdOrRef<BookCopy>[]) {
     super();
     this.userType = userType;

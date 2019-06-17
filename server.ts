@@ -1,3 +1,5 @@
+import {authoriseConnection} from './app/components/database/DbConnect';
+
 require('./app/components/helpers/ArrayExtensions');
 require('./app/components/helpers/Mail');
 import { initializeResources } from './app/communication/resources/Resources';
@@ -34,11 +36,15 @@ if (process.argv) {
       new Logger().logMsg('-------- BPM API server will run in test mode --------');
       setIntegrationTestEnv();
     }
+
+    if (arg === '--seed-database'){
+      require('./app/components/database/Seeder');
+    }
   });
 }
 
 process.on('unhandledRejection', error => {
-  new Logger('unhandledRejection').logErr(error);
+  new Logger('unhandledRejection').logErr(JSON.stringify(error));
 });
 
 const app = express();
@@ -56,13 +62,19 @@ app.use(bodyParser.json({
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Used to allow cross domain requests from clients
-app.use(function (req: Request, res: Response, next: NextFunction): void {
+app.use(async function (req: Request, res: Response, next: NextFunction): Promise<void> {
   res.header('Access-Control-Allow-Origin', config.clientUrl);
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
   res.header['Access-Control-Allow-Headers'] =
     'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept';
   res.header('Access-Control-Allow-Credentials', 'true');
+  if (!req.body.librarianName && !config.modes.integrationTest) {
+    res.status(401);
+  }
+
+
+  await authoriseConnection(req.body.librarianName);
   next();
 });
 

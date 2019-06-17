@@ -16,7 +16,7 @@ export class BookService extends BaseService<LeanBook, DocBook> implements IBook
           { ISBN: isbn },
           {
             bookCopies: {
-              $exists: true,
+              $exists: true
             }
           }
         ]
@@ -27,7 +27,7 @@ export class BookService extends BaseService<LeanBook, DocBook> implements IBook
         foreignField: '_id',
         as: 'bookCopy'
       })
-      .unwind('bookCopy')
+      .unwind('$bookCopy')
       .match({
         'bookCopy.available': true
       })
@@ -41,4 +41,33 @@ export class BookService extends BaseService<LeanBook, DocBook> implements IBook
 
       .exec();
   }
+
+  async searchBooks(bookTitle: string, bookAuthor: string, subjectArea: string):
+      Promise<DocBook[]> {
+    let bookTitleArr = [];
+    let bookAuthorArr = [];
+    let subjectAreaArr = [];
+    if (bookTitle) {
+      bookTitleArr = bookTitle.split(' ').map(value => {
+          return {title: {$regex: value, $options: 'i'}}; });
+    }
+    if (bookAuthor) {
+      bookAuthorArr = bookAuthor.split(' ').map(value => {
+          return {author: {$regex: value, $options: 'i'}}; });
+    }
+    if (subjectArea) {
+      subjectAreaArr = subjectArea.split(' ').map(value => {
+          return {subjectArea: {$regex: value, $options: 'i'}}; });
+    }
+
+    let searchArr = bookTitleArr.concat(bookAuthorArr, subjectAreaArr);
+    if (searchArr.length < 1) {
+      searchArr = [{}];
+    }
+
+    return this.mongoService.getModel('Book').aggregate().match({
+          $and: searchArr
+      }).exec();
+  }
+
 }

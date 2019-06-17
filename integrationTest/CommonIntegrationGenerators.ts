@@ -25,12 +25,12 @@ export async function createCampus(): Promise<DocCampus> {
   return campusService.create(campus).save();
 }
 
-export async function createUser(userType: UserType, campusId: ObjectId): Promise<DocUser> {
+export async function createUser(userType: UserType, campusId?: ObjectId): Promise<DocUser> {
   const db = await getConnection();
   const userService = new UserService(db);
   const user = new User(
-    userType, generateRandomString(10), campusId, generateRandomString(10),
-    generateRandomString(10) + '@mailinator.com', ['+45 35353535'], createMemberCard());
+    userType, generateRandomString(10), generateRandomString(10),
+    generateRandomString(10) + '@mailinator.com', ['+45 35353535'], createMemberCard(), campusId);
   return userService.create(user).save();
 }
 

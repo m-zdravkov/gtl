@@ -27,7 +27,7 @@ export const config = {
     production: false
   },
   databaseName: process.env.dbName || 'masterDb',
-  deleteDevelopmentDb: false,
+  deleteDevelopmentDb: true,
   smtp: {
     auth: {
       user: process.env.SMTPUser,
@@ -38,7 +38,111 @@ export const config = {
     name: process.env.SMTPname,
     port: process.env.SMTPPort || 465,
     sendEmail: process.env.SMTPSendEmail || false
-  }
+  },
+  dbRoles:
+  [
+    {
+      role: 'CHIEF',
+      privileges: [],
+      roles: ['dbAdmin']
+    },
+    {
+      role: 'ASSISTANT',
+      privileges: [
+        { resource: { db: 'masterDb', collection: 'librarians' }, actions: ['find'] },
+        { resource: { db: 'masterDb', collection: 'users' },
+            actions: ['find', 'insert', 'update', 'remove'] },
+        { resource: { db: 'masterDb', collection: 'books' }, actions: ['find'] },
+        { resource: { db: 'masterDb', collection: 'bookcopies' }, actions: ['find', 'update'] },
+        { resource: { db: 'masterDb', collection: 'audits' },
+            actions: ['find', 'insert'] },
+        { resource: { db: 'masterDb', collection: 'campuses' }, actions: ['find'] }
+      ],
+      roles: []
+    } ,
+    {
+      role: 'CHECK_OUT',
+      privileges: [
+        { resource: { db: 'masterDb', collection: 'librarians' }, actions: ['find'] },
+        { resource: { db: 'masterDb', collection: 'users' }, actions: ['find', 'update'] },
+        { resource: { db: 'masterDb', collection: 'books' }, actions: ['find'] },
+        { resource: { db: 'masterDb', collection: 'bookcopies' }, actions: ['find', 'update'] },
+        { resource: { db: 'masterDb', collection: 'audits' }, actions: ['insert'] },
+        { resource: { db: 'masterDb', collection: 'campuses' }, actions: ['find'] }
+      ],
+      roles: []
+    } ,
+    {
+      role: 'REFERENCE',
+      privileges: [
+        { resource: { db: 'masterDb', collection: 'librarians' }, actions: ['find'] },
+        { resource: { db: 'masterDb', collection: 'users' }, actions: ['find'] },
+        { resource: { db: 'masterDb', collection: 'books' }, actions: ['find'] },
+        { resource: { db: 'masterDb', collection: 'bookcopies' }, actions: ['find'] },
+        { resource: { db: 'masterDb', collection: 'campuses' }, actions: ['find'] }
+      ],
+      roles: []
+    } ,
+    {
+      role: 'UNAUTHORISED',
+      privileges: [
+        { resource: { db: 'masterDb', collection: 'librarians' }, actions: ['find'] }
+      ],
+      roles: []
+    } ,
+    {
+      role: 'DEPARTMENTAL_ASSOCIATE',
+      privileges: [],
+      roles: ['readWrite']
+    }
+  ],
+  dbUsers:
+  [
+    {
+      name: 'CHIEF',
+      password: '12345',
+      options: {
+        roles: [ 'CHIEF' ]
+      }
+    },
+    {
+      name: 'ASSISTANT',
+      password: '12345',
+      options: {
+        roles: [ 'ASSISTANT' ]
+      }
+    },
+    {
+      name: 'REFERENCE',
+      password: '12345',
+      options: {
+        roles: [ 'REFERENCE' ]
+      }
+    },
+    {
+      name: 'CHECK_OUT',
+      password: '12345',
+      options: {
+        roles: [ 'CHECK_OUT' ]
+      }
+    },
+    {
+      name: 'UNAUTHORISED',
+      password: '12345',
+      options: {
+        roles: [ 'UNAUTHORISED' ]
+      }
+    },
+    {
+      name: 'DEPARTMENTAL_ASSOCIATE',
+      password: '12345',
+      options: {
+        roles: [ 'DEPARTMENTAL_ASSOCIATE' ]
+      }
+    }
+  ],
+  dbAdminUser: 'Admin',
+  dbAdminPassword: 'Admin'
 };
 
 export function setDevelopmentEnv(): void {
@@ -61,3 +165,4 @@ function setModesToDefault(): void {
     config.modes[key] = false;
   });
 }
+

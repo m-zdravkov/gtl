@@ -1,8 +1,8 @@
-export const userTypes = [ 'PROFESSOR', 'NORMAL_USER' ];
 export enum userTypesEnum {
   PROFESSOR = 'PROFESSOR',
   NORMAL_USER = 'NORMAL_USER'
 }
+export const userTypes = [ userTypesEnum.PROFESSOR, userTypesEnum.NORMAL_USER];
 const localUserTypes = userTypes.toStrEnum();
 export type UserType = keyof typeof localUserTypes;
 

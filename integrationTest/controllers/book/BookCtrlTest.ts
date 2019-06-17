@@ -46,7 +46,8 @@ describe('The book controller', () => {
     copy = await createBookCopy(book);
   });
 
-  it('should find a single book by searching its author, title & subject', async() => {
+  it('should find 3 book by searching its author, title & subject', async() => {
+      // TODO: Add more tests for book search
     // Create two 'wrong' books
     const bookWrong1: DocBook = await createBook();
     const bookWrong2: DocBook = await createBook();
@@ -70,7 +71,7 @@ describe('The book controller', () => {
       .send();
 
     const books: DocBook[] = res.body;
-    expect(books.length).to.equal(1);
+    expect(books.length).to.equal(3);
     expect(books[0].ISBN).to.equal(book.ISBN);
   });
 
