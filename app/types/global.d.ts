@@ -6,6 +6,7 @@ declare global {
       masterDbReady: boolean;
       masterDbInit: boolean;
       db: Connection;
+      currCon: Connection;
     }
   }
 }
