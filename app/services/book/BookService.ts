@@ -1,8 +1,9 @@
 import { Connection } from 'mongoose';
 import { BaseService } from '../BaseService';
 import { DocBook, LeanBook } from '../../models/book/Book';
+import { IBookService } from './IBookService';
 
-export class BookService extends BaseService<LeanBook, DocBook> {
+export class BookService extends BaseService<LeanBook, DocBook> implements IBookService{
   constructor(db: Connection) {
     super('Book', db);
   }

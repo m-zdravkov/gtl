@@ -11,6 +11,9 @@ import { maxLoans } from '../../components/constants/models/user/userConstants';
 import { BookCopyService } from '../../services/book/BookCopyService';
 import { AuditService } from '../../services/audit/AuditService';
 import { actionEnum, modelEnum } from '../../components/constants/models/audit/auditConstants';
+import { IBookService } from '../../services/book/IBookService';
+import { IUserService } from '../../services/user/IUserService';
+import { IAuditService } from '../../services/audit/IAuditService';
 
 export async function createBook(req: Request): Promise<DocBook> {
   const fName = 'BookCtrl.createBook';
@@ -111,6 +114,72 @@ export async function loanBook(req: Request): Promise<DocBookCopy> {
     throw ErrorHandler.handleErrValidation(fName, e.msg, e.inner);
   }
 }
+
+export async function loanBookWithDependencies(
+  req: Request, bookService: IBookService, userService: IUserService,
+  auditService: IAuditService): Promise<DocBookCopy> {
+
+  const fName = 'BookCtrl.loanBook';
+  const isbn = req.params.isbn;
+  const ssn = req.body.ssn;
+
+  // Check if book and user exist
+  const book = await bookService.findOne({ISBN: isbn}, undefined, {
+    path: 'bookCopies',
+    model: 'BookCopy'
+  });
+  if (!book) {
+    throw ErrorHandler.handleErrDb(fName, 'Book ISBN not found');
+  }
+
+  const user = await userService.findOne({ssn: ssn});
+  if (!user) {
+    throw ErrorHandler.handleErrDb(fName, 'User SSN not found');
+  }
+  const oldUser = JSON.parse(JSON.stringify(user));
+
+  if (book.lendingRestrictions && book.lendingRestrictions.length > 0) {
+    throw ErrorHandler.handleErrValidation(fName, 'Book is restricted');
+  }
+
+  // Check that user has loaned less than 5 books
+  if (user.takenBooks && user.takenBooks.length >= maxLoans) {
+    throw ErrorHandler.handleErrValidation(fName, `User can not loan more than ${maxLoans} books`);
+  }
+
+  // Find one available copy from the Book
+  book.bookCopies = book.bookCopies as BookCopy[];
+  const copy = book.bookCopies.find(k => {
+    k = k as BookCopy;
+    return k.available;
+  }) as DocBookCopy;
+
+  if (!copy) {
+    throw ErrorHandler.handleErrDb(fName, 'No copies are available');
+  }
+  const oldCopy = JSON.parse(JSON.stringify(copy));
+
+  // Assign loan
+  copy.available = false;
+  copy.takenDate = moment();
+  console.log(returnPeriod);
+  console.log(user);
+  copy.expectedReturnDate = moment()
+    .add(returnPeriod[user.userType].period, returnPeriod[user.userType].unit);
+  user.takenBooks.push(copy);
+
+  try {
+    const savedUser = await user.save();
+    auditService.createAudit(modelEnum.USER, actionEnum.UPDATE, user._id, savedUser, oldUser);
+    const savedCopy = await copy.save();
+    auditService.createAudit(modelEnum.BOOK_COPY, actionEnum.LOAN_BOOK,
+      copy._id, savedCopy, oldCopy);
+    return savedCopy;
+  } catch (e) {
+    throw ErrorHandler.handleErrValidation(fName, e.msg, e.inner);
+  }
+}
+
 
 export async function createBookCopy(req: Request): Promise<DocBookCopy> {
     const fName = 'BookCtrl.createBookCopy';

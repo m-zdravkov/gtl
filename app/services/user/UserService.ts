@@ -13,8 +13,9 @@ import { DocCampus } from '../../models/campus/Campus';
 import { ErrorHandler } from '../../components/ErrorHandler';
 import { BookCopyService } from '../book/BookCopyService';
 import { ObjectId } from '../../models/BaseModel';
+import { IUserService } from './IUserService';
 
-export class UserService extends BaseService<LeanUser, DocUser> {
+export class UserService extends BaseService<LeanUser, DocUser> implements IUserService {
   constructor(db: Connection) {
     super('User', db);
   }

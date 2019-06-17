@@ -3,10 +3,13 @@ import { BaseService } from '../BaseService';
 import { Audit, DocAudit, LeanAudit } from '../../models/audit/Audit';
 import moment = require('moment');
 import { actionEnum, modelEnum } from '../../components/constants/models/audit/auditConstants';
+import { ObjectId } from '../../models/BaseModel';
+import { IAuditService } from './IAuditService';
 import {ObjectId} from '../../models/BaseModel';
 import {Book} from '../../models/book/Book';
 
-export class AuditService extends BaseService<LeanAudit, DocAudit> {
+export class AuditService extends BaseService<LeanAudit, DocAudit>
+  implements IAuditService {
 
   async createAudit(model: modelEnum, action: actionEnum, modelId?: ObjectId, newObject?: Object,
                     oldObject?: Object, librarianId?: ObjectId): Promise<DocAudit> {
