@@ -1,6 +1,7 @@
 import { defaultCtrlCall } from './UtilResources';
 import { Router } from 'express';
 import { sendAllNotifications } from '../../controllers/webjobs/NotificationCtrl';
+import { seedDatabase } from '../../components/database/Seeder';
 import {
     getAverageLoanTime as getAlt,
     getMostLoanedBook
@@ -9,6 +10,10 @@ import {
 export function sendNotifications(router: Router): void {
   router.get('/webjobs/notifications/send', (req, res) => {
     return defaultCtrlCall(res, sendAllNotifications, req);
+  });
+
+  router.get('/webjobs/seed', (req, res) => {
+    return defaultCtrlCall(res, seedDatabase, req);
   });
 }
 

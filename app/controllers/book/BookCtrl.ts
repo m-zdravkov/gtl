@@ -127,7 +127,7 @@ export async function createBookCopy(req: Request): Promise<DocBookCopy> {
 
     try {
         savedObject = await bookCopyService.create(copy).save();
-        book.bookCopies.push(copy._id);
+        book.bookCopies.push(savedObject._id);
         await book.save();
     } catch (e) {
         throw ErrorHandler.handleErrValidation(fName, e.msg, e.inner);
@@ -153,7 +153,7 @@ export async function countAvailableCopies(req: Request): Promise<any> {
     const res = await bookService.countAvailableCopies(book.ISBN);
     const auditService = new AuditService(db);
     auditService.createAudit(modelEnum.BOOK, actionEnum.FIND_COPIES, book._id);
-    return res[0];
+    return res && res.length > 0 ? res[0] : { count: 0 };
 }
 export async function setBookCopyStatus(req: Request): Promise<DocBookCopy> {
   const fName = 'BookCtrl.setBookCopyStatus';
